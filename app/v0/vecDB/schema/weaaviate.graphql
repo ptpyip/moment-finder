@@ -1,0 +1,15 @@
+query FrameFromTextVector($nearVector: NearVector!) {
+    Get {
+        Frames(
+            nearVector: $nearVector
+            limit: $limit
+        ){
+            description
+            videoLoc
+            _additional {
+                vector
+                certainty
+            }
+        }
+  }
+}
