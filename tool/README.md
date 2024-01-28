@@ -1,0 +1,2 @@
+## Description
+This dirertory contains the code for the CLI tools developed to utilize various functionality provided by the `core` module, include uploading data, testing the implementation, and evaluating the system.
