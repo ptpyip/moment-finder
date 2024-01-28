@@ -1,0 +1,1 @@
+from .shotDetect import MomentProposalGenerator

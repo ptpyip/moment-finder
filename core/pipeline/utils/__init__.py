@@ -1,0 +1,1 @@
+from .video_extractor import RawVideoExtractorCV2 as VideoExtractor 
