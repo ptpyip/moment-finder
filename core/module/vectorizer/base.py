@@ -5,6 +5,9 @@ from torchvision.transforms import Compose
 from PIL import Image
 
 class BaseVectorizer(ABC):
+    """
+    Encode input data as vector, from text, images to even videos.
+    """
     model: torch.nn.Module
     preprocess: Compose
    
