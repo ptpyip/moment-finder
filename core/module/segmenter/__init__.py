@@ -1,1 +1,1 @@
-from .shotDetect import shotDetectSegmenter
+from .shotDetect import ShotDetectSegmenter
