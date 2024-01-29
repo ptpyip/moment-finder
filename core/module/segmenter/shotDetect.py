@@ -19,9 +19,9 @@ from scenedetect import split_video_ffmpeg
 
 from .base import BaseVideoSegmenter
 
-class shortDetectSegmenter(BaseVideoSegmenter):
+class shotDetectSegmenter(BaseVideoSegmenter):
     """
-    Segment videos using  short trainsition Detection
+    Segment videos using  shot trainsition Detection
     """
     
     def __init__(self,
