@@ -15,14 +15,14 @@ class CLIPVectorizer(BaseVectorizer):
     def load_model(self, *args):
         self.model, self.preprocess = clip.load(self.model_name, device=self.device)
         
-    def encode_txt(self, txt:str):
+    def vectorize_txt(self, txt:str):
         with torch.no_grad():
             text_features = self.model.encode_text(clip.tokenize(txt).to(self.device))
             text_features /= text_features.norm(dim=-1, keepdim=True)
         
         return text_features
     
-    def encdoe_img(self, img_raw: Image):
+    def vectorize_img(self, img_raw: Image):
         # img_raw = Image.open(img_path)
         img =  self.preprocess(img_raw) 
         
@@ -32,7 +32,7 @@ class CLIPVectorizer(BaseVectorizer):
         
         return img_features
 
-    def encode_img_tensor(self, img_tensor: torch.Tensor):
+    def vectorize_img_tensor(self, img_tensor: torch.Tensor):
         assert isinstance(img_tensor, torch.Tensor)
         
         with torch.no_grad():
@@ -41,7 +41,7 @@ class CLIPVectorizer(BaseVectorizer):
         
         return img_features
     
-    def encode_batched_img(self, images, batch_size):
+    def vectorize_batched_img(self, images, batch_size):
         batches = math.ceil(len(images) / batch_size)
 
         # The encoded features will bs stored in video_features
