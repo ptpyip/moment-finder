@@ -7,12 +7,16 @@ from .module.segmenter import ShotDetectSegmenter
 from .module.vectorizer import CLIPVectorizer
 
 class UploadPipeline():
-    MOMENT_OUT_DIR = "./proposal"
+    MOMENT_OUT_DIR = "/homes/ptpyip/dev/tmp/proposal"
     
     segmenter = ShotDetectSegmenter(MOMENT_OUT_DIR, use_adaptive=True) 
     extractor = VideoExtractor()
     vectorizer = CLIPVectorizer()
     db = SupabaseDB()
+    
+    def __init__(self) -> None:
+        if not os.path.exists(self.MOMENT_OUT_DIR):
+            os.mkdir(self.MOMENT_OUT_DIR)
     
     def upload_video_file(self, video_path):
         assert os.path.exists(video_path)
@@ -46,6 +50,9 @@ class UploadPipeline():
                         "vector": feature.tolist()                              # jsn only support list
                     }
                 )
+        
+        ## clean dir
+        
       
     def vectorize_moments(self, moment_dir=None):
         if moment_dir is None:
