@@ -18,4 +18,5 @@ class SupabaseDB:
         return res
     
     def fetch(self, vector):
+        """ use SQL to perfrom fetching"""
         pass
