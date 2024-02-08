@@ -21,9 +21,15 @@ class UploadPipeline():
     vectorizer = CLIPVectorizer()
     db = SupabaseDB()
     
-    def __init__(self) -> None:
+    def __init__(self, 
+        moment_table_name=None, 
+        vector_table_name=None
+    ) -> None:
         if not os.path.exists(self.MOMENT_OUT_DIR):
             os.mkdir(self.MOMENT_OUT_DIR)
+            
+        self.moment_table_name = moment_table_name
+        self.vector_table_name = vector_table_name
     
     def upload_video_file(self, video_path):
         assert os.path.exists(video_path)
@@ -40,7 +46,7 @@ class UploadPipeline():
         for moment, timestamp in zip(moment_datas, timestamp_list):
             
             res = self.db.insert(
-                table_name=self.MOMENT_TABLE_NAME,
+                table_name=self.moment_table_name,
                 data={
                     "name": moment.get("name",""),
                     "timestamp": list(timestamp)
@@ -55,7 +61,7 @@ class UploadPipeline():
                 frame_base64 = video_processing.encode_img_to_base64(frame)
                 
                 res = self.db.insert(
-                    self.MOMENT_FEATURE_TABLE_NAME,
+                    self.vector_table_name,
                     data = {
                         "moment_id": moment_id,
                         "frame_base64": frame_base64.decode("utf-8"),           # need to turn byte to str, as JSON only accept str
