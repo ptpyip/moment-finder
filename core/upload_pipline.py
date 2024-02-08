@@ -1,4 +1,5 @@
 import os.path
+import tqdm 
 
 from .vec_db import SupabaseDB
 from .utils import video_processing
@@ -80,7 +81,7 @@ class UploadPipeline():
            assert os.path.exists(moment_dir) 
         
         moment_datas = []
-        for file_name in os.listdir(moment_dir):
+        for file_name in tqdm.tqdm(os.listdir(moment_dir)):
             if not file_name.endswith(".mp4"):
                 continue
             
