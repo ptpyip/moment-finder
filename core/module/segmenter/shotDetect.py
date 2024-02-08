@@ -47,7 +47,7 @@ class ShotDetectSegmenter(BaseVideoSegmenter):
 
         return self.parse_scene_list(scene_list)
     
-    def parse_scene_list(scene_list) -> List[Tuple[float, float]]:
+    def parse_scene_list(self, scene_list) -> List[Tuple[float, float]]:
         return [(scene[0].get_seconds(), scene[1].get_seconds()) for scene in scene_list]
         
 ### helper funcions
