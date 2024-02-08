@@ -8,7 +8,7 @@ def get_pg_db_url(server_url, port_num, db_name, user_name, pwd):
     return f"postgresql://{user_name}:{pwd}@{server_url}:{port_num}/{db_name}" 
 
 class PgvectorDB: 
-    PG_DB_CONNECTION = "postgresql://postgres:password_test_123123@db.augwkisabfpevnwvzzqu.supabase.co:5432/postgres"
+    PG_DB_CONNECTION = "postgres://postgres.augwkisabfpevnwvzzqu:password_test_123123@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres"
     
     def __init__(self, 
         server_url = "db.augwkisabfpevnwvzzqu.supabase.co", 
