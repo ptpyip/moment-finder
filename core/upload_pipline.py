@@ -17,11 +17,6 @@ def clean_dir(dir):
 class UploadPipeline():
     MOMENT_OUT_DIR = "/homes/ptpyip/dev/tmp/proposal"
     
-    segmenter = ShotDetectSegmenter(MOMENT_OUT_DIR, use_adaptive=True) 
-    extractor = VideoExtractor()
-    vectorizer = CLIPVectorizer()
-    db = SupabaseDB()
-    
     def __init__(self, 
         moment_table_name=None, 
         vector_table_name=None
@@ -31,6 +26,11 @@ class UploadPipeline():
             
         self.moment_table_name = moment_table_name
         self.vector_table_name = vector_table_name
+        
+        self.segmenter = ShotDetectSegmenter(self.MOMENT_OUT_DIR, use_adaptive=True) 
+        self.extractor = VideoExtractor()
+        self.vectorizer = CLIPVectorizer()
+        self.db = SupabaseDB()
     
     def upload_video_file(self, video_path):
         assert os.path.exists(video_path)
