@@ -12,6 +12,8 @@ Method from Zero-shot Video Moment Retrieval With Off-the-Shelf Models (https://
 
 import os
 
+from typing import List, Tuple
+
 import scenedetect
 from scenedetect.detectors import AdaptiveDetector, ContentDetector
 from scenedetect import video_splitter
@@ -36,13 +38,17 @@ class ShotDetectSegmenter(BaseVideoSegmenter):
         self.output_file_template = f'{output_dir}/$VIDEO_NAME-Scene-$SCENE_NUMBER.mp4'    
         self.detector = AdaptiveDetector(adaptive_threshold, min_content_val=content_threshold) if use_adaptive else ContentDetector(content_threshold)
         
-    def split(self, input_video_path, show_progress=True):
-        output_dir 
-        output_dir = remove_suffix(output_dir,'/')
-        if not os.path.exists(output_dir):
-            os.mkdir(output_dir)
+    def split(self, input_video_path, show_progress=True) -> List[Tuple[float, float]]:
+        # output_dir = remove_suffix(output_dir,'/')
+        # if not os.path.exists(output_dir):
+        #     os.mkdir(output_dir)
         scene_list = scenedetect.detect(input_video_path, self.detector)
         split_video_ffmpeg(input_video_path, scene_list, self.output_file_template, show_progress=show_progress)
+
+        return self.parse_scene_list(scene_list)
+    
+    def parse_scene_list(scene_list) -> List[Tuple[float, float]]:
+        return [(scene[0].get_seconds(), scene[1].get_seconds()) for scene in scene_list]
         
 ### helper funcions
 def remove_suffix(input_string, suffix):

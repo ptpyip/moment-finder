@@ -6,6 +6,13 @@ from .utils import VideoExtractor
 from .module.segmenter import ShotDetectSegmenter
 from .module.vectorizer import CLIPVectorizer
 
+def clean_dir(dir):
+    for filename in os.listdir(dir):
+        if os.path.isfile(os.path.join(dir, filename)):
+            os.remove(os.path.join(dir, filename))
+    
+    return
+
 class UploadPipeline():
     MOMENT_OUT_DIR = "/homes/ptpyip/dev/tmp/proposal"
     
@@ -20,7 +27,9 @@ class UploadPipeline():
     
     def upload_video_file(self, video_path):
         assert os.path.exists(video_path)
-        self.segmenter.split(video_path)        ## Split to MOMENT_OUT_DIR
+
+        clean_dir(self.MOMENT_OUT_DIR)
+        timestamp_list = self.segmenter.split(video_path)        ## Split to MOMENT_OUT_DIR
         
         moment_datas = self.vectorize_moments() 
                 
@@ -28,11 +37,14 @@ class UploadPipeline():
         
         # create one moment
         # then upload vectors fro each frame for that moment
-        for moment in moment_datas:
+        for moment, timestamp in zip(moment_datas, timestamp_list):
             
             res = self.db.insert(
                 table_name=self.MOMENT_TABLE_NAME,
-                data={"name": moment.get("name","")}
+                data={
+                    "name": moment.get("name",""),
+                    "timestamp": list(timestamp)
+                }        
             )
                     
             moment_id = res.data[0]["id"]       # may need chane when new db is used?
@@ -47,11 +59,12 @@ class UploadPipeline():
                     data = {
                         "moment_id": moment_id,
                         "frame_base64": frame_base64.decode("utf-8"),           # need to turn byte to str, as JSON only accept str
-                        "vector": feature.tolist()                              # jsn only support list
+                        "vector": feature.tolist(),                              # jsn only support list
                     }
                 )
         
         ## clean dir
+        
         
       
     def vectorize_moments(self, moment_dir=None):
