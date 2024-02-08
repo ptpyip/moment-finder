@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 def get_pg_db_url(server_url, port_num, db_name, user_name, pwd):
     return f"postgresql://{user_name}:{pwd}@{server_url}:{port_num}/{db_name}" 
 
-class PgvectorFetcher: 
+class PgvectorDB: 
     PG_DB_CONNECTION = "postgresql://postgres:password_test_123123@:5432/postgres"
     
     def __init__(self, 
