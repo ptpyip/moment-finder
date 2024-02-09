@@ -42,7 +42,7 @@ class PgvectorDB:
             )).fetchall()
 
     def test_connection(self):
-        with self.Section() as session:
+        with self.Session() as session:
             return session.execute(text(f"""
                 SELECT *
                 FROM items 
