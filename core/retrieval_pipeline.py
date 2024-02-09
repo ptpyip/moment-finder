@@ -3,7 +3,10 @@ from .vec_db import PgvectorDB
 from .module.vectorizer import CLIPVectorizer
 
 class RetrievalPipeline:
-    db = PgvectorDB()
+    db = PgvectorDB(
+        server_url="localhost",
+        pwd="password"
+    )
     vectorizer = CLIPVectorizer()
     
     def retrive(self, prompt: str, k=5):
