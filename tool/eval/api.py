@@ -16,7 +16,7 @@ async def get_hi():
 @app.get("/moment/test")
 async def test_db():
     rp = RetrievalPipeline()
-    return rp.db.test_connection()
+    return str(rp.db.test_connection())
 
 # if __name__ == "__main":
 #     app.l
