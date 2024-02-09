@@ -18,5 +18,5 @@ async def test_db():
     rp = RetrievalPipeline()
     return rp.db.test_connection()
 
-if __name__ == "__main":
-    app
+# if __name__ == "__main":
+#     app.l
