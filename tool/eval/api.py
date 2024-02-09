@@ -13,7 +13,7 @@ async def retrive_moments(prompt):
 async def get_hi():
     return "hi"
 
-@app("/moment/test")
+@app.get("/moment/test")
 async def test_db():
     rp = RetrievalPipeline()
     return rp.db.test_connection()
