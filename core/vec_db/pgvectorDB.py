@@ -40,3 +40,10 @@ class PgvectorDB:
                 group by moment_id 
                 ORDER BY distance LIMIT {int(k)};"""
             )).fetchall()
+
+    def test_connection(self):
+        with self.Section() as session:
+            return session.execute(text(f"""
+                SELECT *
+                FROM items 
+            """)).fetchall()
