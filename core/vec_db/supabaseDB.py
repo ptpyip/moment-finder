@@ -1,15 +1,18 @@
 from supabase import create_client, Client
 
 class SupabaseDB:
-    SERVER_URL = "https://augwkisabfpevnwvzzqu.supabase.co"
-    KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1Z3draXNhYmZwZXZud3Z6enF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDQxODEyNjQsImV4cCI6MjAxOTc1NzI2NH0.fCq73M9nXjKriNMNOYnFsxzH8_cdUpiNlyh9_XioREI"
-    """TODO: get them trough env or input args"""
+    SERVER_URL = "http://vml1wk132.cse.ust.hk:8080"
+    KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE"
+
+    # TODO: get them trough env or input args
     
     
     supabase_client: Client
     
-    def __init__(self) -> None:
-        self.supabase_client = create_client(self.SERVER_URL, self.KEY)
+    def __init__(self, server_url=None, key=None) -> None:
+        self.server_url = server_url if server_url else self.SERVER_URL
+        self.key = key if key else self.KEY
+        self.supabase_client = create_client(self.server_url, self.KEY)
         
     def insert(self, table_name, data):
         res = self.supabase_client.table(table_name).insert(data).execute()
