@@ -1,3 +1,8 @@
+"""
+This file contains code for upload and retrieve moments for a given dataset
+It generates the result file for eval code to use.
+This code is yet to be pollished.
+"""
 import json
 
 from io import BytesIO
