@@ -58,8 +58,8 @@ class ShotDetectSegmenter(BaseVideoSegmenter):
     def parse_scene_list(self, scene_list) -> List[Tuple[float, float]]:
         return [(scene[0].get_seconds(), scene[1].get_seconds()) for scene in scene_list]
        
-    @classmethod
-    def parse_video_name(moment_dir):
+    @staticmethod
+    def parse_video_name(moment_dir) -> str:
         moment_file_name = moment_dir.split("/")[-1]
         moment_name = moment_file_name.rsplit(".mp4", 1)[0]
         video_name = moment_name.split("-Scene-", 1)[0]

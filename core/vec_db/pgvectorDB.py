@@ -29,6 +29,7 @@ class PgvectorDB:
         with self.Session() as session:
             
             return session.execute(text(f"""
+                SET LOCAL hnsw.ef_search = 100;
                 SELECT id, name, timestamp, min_distance
                 FROM {moment_table_name} AS moment_table
                     JOIN (
@@ -44,6 +45,7 @@ class PgvectorDB:
                     ) AS result_table 
                     ON result_table.moment_id = moment_table.id 
             """)).fetchall()
+            
         
     def fetch_features_by_vector(self, feature_table_name:str, input_vector, k=5, return_frame=False):
         ## validate table_name
