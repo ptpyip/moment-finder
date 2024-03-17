@@ -76,10 +76,12 @@ def test_retrieval(prompt):
     print(rp.retrive(str(prompt)))
     
 if __name__ == "__main__":
-    print("hi")
-    DATA_PATH = "/home/ptpyip/fyp/datasets/qvhilights"
-    # upload_video_from_dataset(f"{DATA_PATH}/highlight_val_release.jsonl", f"{DATA_PATH}/videos")
-    # test_retrieval("Police in riot gear are marching down the street.")
-    retrieve_video_using_dataset_prompt(f"{DATA_PATH}/highlight_val_release.jsonl")
+    # print("hi")
+    # DATA_PATH = "/home/ptpyip/fyp/datasets/qvhilights"
+    # # upload_video_from_dataset(f"{DATA_PATH}/highlight_val_release.jsonl", f"{DATA_PATH}/videos")
+    # # test_retrieval("Police in riot gear are marching down the street.")
+    # retrieve_video_using_dataset_prompt(f"{DATA_PATH}/highlight_val_release.jsonl")
+    
+    print(__path__)
     
     

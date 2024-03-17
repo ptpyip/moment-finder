@@ -3,23 +3,30 @@ from typing import Any, Union, List
 
 import torch
 from clip.simple_tokenizer import SimpleTokenizer as Tokenizer
-from clip import tokenize
+# from clip import tokenize
 
 # from .model import build_model
 from .model import CLIP4Clip
 
+_MODELS = [
+    "meanP-ViT-B/16","meanP-ViT-B/32",
+    # "Trans-ViT-B/16","Trans-ViT-B/32"
+]
+
 # tokenizer = Tokenizer()
 
-def load( path: str, clip_name="ViT-B/16"):
+def load(path: str, model_name="meanP-ViT-B/16", device="cpu"):
     """Load a CLIP4Clip model for inference"""
+    assert model_name in _MODELS
     if os.path.exists(path):
         return None
     
     state_dict = torch.load(path, map_location="cpu")
     
+    clip_name = model_name.split("-", 1)[1]
     model = CLIP4Clip(clip_name)
     model.load_state_dict(state_dict)
-    model.eval()
+    model.to(device).eval()
     
     return model
 
