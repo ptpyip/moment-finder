@@ -4,12 +4,6 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-name: CLIP4Clip
-channels:
-  - pytorch
-  - conda-forge
-  - defaults
-dependencies:
   - asttokens
   - blas
   - brotlipy
