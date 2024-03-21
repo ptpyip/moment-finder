@@ -87,7 +87,7 @@ dependencies:
   - pygments
   - pyopenssl
   - pysocks
-  - python
+  - python=3.10
   - python-dateutil
   - python_abi
   - pytorch
