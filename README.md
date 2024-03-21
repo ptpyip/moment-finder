@@ -6,6 +6,7 @@
 ## Requirments
 ```bash
 conda env create -n <name> -f environment.yml
+conda activate <name>
 pip install -r ./requirements.txt
 pip install git+https://github.com/openai/CLIP.git
 ```
