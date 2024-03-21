@@ -7,6 +7,7 @@
 ```bash
 conda env create -n <name> -f environment.yml
 pip install -r ./requirements.txt
+pip install git+https://github.com/openai/CLIP.git
 ```
 
 ## Acknowledgment 
