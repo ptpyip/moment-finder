@@ -1,6 +1,13 @@
 # Moment Finder
 
 > Retrieve moments from videos using natural language query
+>
+
+## Requirments
+```bash
+conda env create -n <name> -f environment.yml
+pip install -r ./requirements.txt
+```
 
 ## Acknowledgment 
 This repository is developemt for the 2023-2024 HKUST CSE FYP under the suppervision of Prof. Dan Xu. 
