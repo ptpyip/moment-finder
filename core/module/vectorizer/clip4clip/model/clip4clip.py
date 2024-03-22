@@ -1,5 +1,6 @@
 import os
 from enum import Enum
+from typing import Optional
 
 import torch
 from torch import nn
@@ -36,9 +37,9 @@ class CLIP4Clip(PreTrainedClip):
         self.hidden_size = hidden_size
         self.num_temporal_hidden_layers = num_temporal_hidden_layers
         
-        self.temporal_trans = None
+        self.temporal_trans: Optional[TemporalTransformer] = None
         if temporal_mode == TemporalMode.TRANSFORMER:
-            self.temporal_trans = self._init_temporal(max_temporal_embeddings)
+            self.temporal_trans = self._init_temporal_trans(max_temporal_embeddings)
             assert self.num_temporal_embeddings <= max_temporal_embeddings
         
         self.loss_fn = CrossEn()
@@ -66,7 +67,7 @@ class CLIP4Clip(PreTrainedClip):
         if moment_mask is None:
             moment_mask = torch.ones((bs, L))
         
-        assert moment.dim == 2
+        assert moment_mask.dim == 2
         assert bs == moment_mask.shape[0]
         assert L == moment_mask.shape[1]
         
@@ -108,8 +109,8 @@ class CLIP4Clip(PreTrainedClip):
             text_feature, video_feature
         )
         
-        sim_loss1 = self.loss_fct(sim_matrix)
-        sim_loss2 = self.loss_fct(sim_matrix.T)
+        sim_loss1 = self.loss_fn(sim_matrix)
+        sim_loss2 = self.loss_fn(sim_matrix.T)
         sim_loss = (sim_loss1 + sim_loss2) / 2
         loss += sim_loss
 
@@ -142,6 +143,7 @@ class CLIP4Clip(PreTrainedClip):
     
     def forward_temporal(self, feature, video_mask):
         if self.temporal_mode is TemporalMode.TRANSFORMER:
+            assert self.temporal_trans is not None
             feature = self.temporal_trans(feature, video_mask)
         
         return self.mean_pooling(feature, video_mask) 
