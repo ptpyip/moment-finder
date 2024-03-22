@@ -3,7 +3,7 @@ from typing import Any, Union, List
 
 import torch
 from clip.simple_tokenizer import SimpleTokenizer as Tokenizer
-# from clip import tokenize
+from clip.clip import _transform
 
 # from .model import build_model
 from .model import CLIP4Clip
@@ -18,18 +18,33 @@ _MODELS = [
 def load(path: str, model_name="meanP-ViT-B/16", device="cpu"):
     """Load a CLIP4Clip model for inference"""
     assert model_name in _MODELS
-    if os.path.exists(path):
-        return None
+    if not os.path.exists(path):
+        raise RuntimeError(f"Model {model_name} not found with path: {path}")
+        # return None
     
     state_dict = torch.load(path, map_location="cpu")
     
     clip_name = model_name.split("-", 1)[1]
     model = CLIP4Clip(clip_name)
     model.load_state_dict(state_dict)
-    model.to(device).eval()
+    model.to(device).float().eval()
     
-    return model
+    return model, _transform(model.input_resolution.item())
 
+# def preprocess(frames: list):
+#     """convert list of frames into tensor + mask"""
+#     # if frames
+#     ...
+    
+
+# def _transform(n_px):
+#     return Compose([
+#         Resize(n_px, interpolation=BICUBIC),
+#         CenterCrop(n_px),
+#         _convert_image_to_rgb,
+#         ToTensor(),
+#         Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
+#     ])
 
 # def tokenize(
 #     texts: Union[str, List[str]], 

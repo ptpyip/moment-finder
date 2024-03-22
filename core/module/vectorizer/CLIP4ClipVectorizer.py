@@ -1,9 +1,11 @@
 import math
 import torch
+import numpy as np
 # import clip
 
 
-from PIL import Image
+from PIL.Image import Image
+from typing import List
 from torchvision.transforms import Compose
 
 from . import clip4clip
@@ -11,6 +13,7 @@ from .base import BaseVectorizer
 # CKPT_PATH = "/home/ptpyip/fyp/moment-finder/core/module/vectorizer/CLIP4Clip/ckpts"
 
 class CLIP4ClipVectorizer(BaseVectorizer):
+    model: clip4clip.CLIP4Clip
     def __init__(self, 
         model_path,
         model_name="meanP-ViT-B/32"
@@ -20,7 +23,7 @@ class CLIP4ClipVectorizer(BaseVectorizer):
         super().__init__()
     
     def load_model(self, *args):
-        self.model, self.preprocess = clip4clip.load(
+        self.model, self.transform = clip4clip.load(
             self.model_path, self.model_name, self.device
         )
         
@@ -31,12 +34,39 @@ class CLIP4ClipVectorizer(BaseVectorizer):
         
         return text_features
     
-    def vectorize_img(self, img_raw: Image):
+    def vectorize_moment(self, moment: List[Image]):
         # img_raw = Image.open(img_path)
-        img =  self.preprocess(img_raw) 
+        moment_tensor, moment_mask = self.preprocess([moment]) 
         
         with torch.no_grad():
-            img_features =  self.model.encode_image(img.to(self.device))
-            img_features /= img_features.norm(dim=-1, keepdim=True)
+            video_features =  self.model.encode_moments(
+                moment_tensor.to(self.device),
+                moment_mask.to(self.device) 
+            )
+            video_features /= video_features.norm(dim=-1, keepdim=True)
         
-        return img_features 
+        return video_features 
+
+    def preprocess(self, moments: List[List[Image]]):
+        assert type(moments) == list
+        
+        bs = moments.shape[0]
+        moment_tensor = torch.zeros(bs, L, 3, H, W,)
+        moment_mask = torch.zeros(bs, L)
+        for i, moment in enumerate(moments):
+            moment_length = len(moment)
+            
+            L = self.model.max_num_frame
+            H = W = self.model.input_resolution
+            
+            if moment_length > L:
+                print(f"Warning moment too large: {moment_length}, slicing is used")
+                
+                ## hard slice
+                moment = moment[:L]
+                moment_length = L
+
+            moment_tensor[i][:moment_length] = np.stack(map(self.transform, moment))
+            moment_mask[i][:moment_length] = [1] * moment_length
+        
+        return moment_tensor, moment_mask

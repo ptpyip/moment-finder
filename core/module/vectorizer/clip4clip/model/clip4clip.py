@@ -28,7 +28,9 @@ class CLIP4Clip(PreTrainedClip):
         num_temporal_hidden_layers = 4,
         max_temporal_embeddings = 128,
     ) -> None:
-        super(CLIP4Clip, self).__init__(clip_name)                                ## init clip
+        super(CLIP4Clip, self).__init__(clip_name)                                ## init clipa[0]
+        self.input_resolution = self.clip.visual.input_resolution
+        self.max_num_frame = self.clip.context_length
        
         self.temporal_mode = temporal_mode 
         self.hidden_size = hidden_size
@@ -43,6 +45,46 @@ class CLIP4Clip(PreTrainedClip):
         self.norm = lambda x: x / x.norm(dim=-1, keepdim=True)
     
         return
+
+    def encode_text(self, text):
+        """for inference"""
+        text = text.view(-1, text.shape[-1]) 
+        return self.forward_text(text)
+
+    def encode_moments(self, moment: torch.Tensor, moment_mask=None):
+        """
+        encode one or more than one moments
+        
+        Attribute:
+        - moment: torch.Tensor
+        - moment_mask: a 2D array indicate moment_i has L frames. 
+        
+        """
+        assert len(moment.shape) >= 4
+        bs, L, _, H, W = moment.shape
+
+        if moment_mask is None:
+            moment_mask = torch.ones((bs, L))
+        
+        assert moment.dim == 2
+        assert bs == moment_mask.shape[0]
+        assert L == moment_mask.shape[1]
+        
+        moment = moment.view(-1, 3, H, W).float()   # batched frames in 4D Tensor
+        return self.forward_visual(moment, moment_mask)
+
+        
+    # def encode_frames(self, frames):
+    #     """for inference"""
+
+    #     N, L, channel, h, w = frames.shape
+    #     assert L <= self.max_num_frame
+    #     frames = frames.view(-1, channel, h, w) 
+    #     for moment in frames:
+    #         moment_length = 
+    #         video_mask[i][:v_length] = [1] * v_length
+        
+    #     return self.forward_text(frames)
    
 
     def forward(self, text, video, video_mask):
@@ -74,7 +116,7 @@ class CLIP4Clip(PreTrainedClip):
         return loss
 
     def forward_text(self, text):
-        bs = text.size(0)
+        bs = text.size(0)           # [batch_size, n_ctx, dim]
         
         text_feature = self.clip.encode_text(text).float()
         text_feature = text_feature.view(

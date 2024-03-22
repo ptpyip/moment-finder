@@ -22,6 +22,7 @@ class PreTrainedClip(nn.Module):
         clip_name,
     ) -> None:
         super(PreTrainedClip, self).__init__()
+        print(f"initializinf clip: {clip_name}")
         self.clip = self.init_clip(clip_name)
     
         return
