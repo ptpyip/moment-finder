@@ -29,7 +29,7 @@ def load(path: str, model_name="meanP-ViT-B/16", device="cpu"):
     model.load_state_dict(state_dict)
     model.to(device).float().eval()
     
-    return model, _transform(model.input_resolution.item())
+    return model, _transform(model.input_resolution)
 
 # def preprocess(frames: list):
 #     """convert list of frames into tensor + mask"""
