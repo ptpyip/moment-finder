@@ -67,7 +67,7 @@ class CLIP4Clip(PreTrainedClip):
         if moment_mask is None:
             moment_mask = torch.ones((bs, L))
         
-        assert moment_mask.dim == 2
+        assert moment_mask.dim() == 2
         assert bs == moment_mask.shape[0]
         assert L == moment_mask.shape[1]
         
