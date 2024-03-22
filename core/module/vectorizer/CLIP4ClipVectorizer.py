@@ -66,7 +66,9 @@ class CLIP4ClipVectorizer(BaseVectorizer):
                 moment = moment[:L]
                 moment_length = L
 
-            moment_tensor[i][:moment_length] = np.stack(map(self.transform, moment))
+            moment_tensor[i][:moment_length] = torch.stack(
+                [self.transform(frame) for frame in moment]
+            )
             moment_mask[i][:moment_length] = [1] * moment_length
         
         return moment_tensor, moment_mask
