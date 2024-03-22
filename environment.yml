@@ -108,5 +108,8 @@ dependencies:
   - zeromq
   - zlib
   - zstd
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> add requirments for conda venv
