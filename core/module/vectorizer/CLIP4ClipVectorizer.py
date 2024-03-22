@@ -48,16 +48,16 @@ class CLIP4ClipVectorizer(BaseVectorizer):
         return video_features 
 
     def preprocess(self, moments: List[List[Image]]):
-        assert type(moments) == list
+        assert isinstance(moments, list)
         
-        bs = moments.shape[0]
-        moment_tensor = torch.zeros(bs, L, 3, H, W,)
+        bs = len(moments)
+        L = self.model.max_num_frame
+        H = W = self.model.input_resolution
+        
+        moment_tensor = torch.zeros(bs, L, 3, H, W)
         moment_mask = torch.zeros(bs, L)
         for i, moment in enumerate(moments):
             moment_length = len(moment)
-            
-            L = self.model.max_num_frame
-            H = W = self.model.input_resolution
             
             if moment_length > L:
                 print(f"Warning moment too large: {moment_length}, slicing is used")
