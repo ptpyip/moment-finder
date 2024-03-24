@@ -8,7 +8,10 @@ from clip.clip import _transform
 # from .model import build_model
 from .model import CLIP4Clip
 
-_MODELS = [
+GPU_CKPTS_DIR = "/csproject/dan3/downloads/ckpts"
+CPU_CKPTS_DIR = ""
+
+MODELS = [
     "meanP-ViT-B/16","meanP-ViT-B/32",
     # "Trans-ViT-B/16","Trans-ViT-B/32"
 ]
@@ -17,7 +20,7 @@ _MODELS = [
 
 def load(path: str, model_name="meanP-ViT-B/16", device="cpu"):
     """Load a CLIP4Clip model for inference"""
-    assert model_name in _MODELS
+    assert model_name in MODELS
     if not os.path.exists(path):
         raise RuntimeError(f"Model {model_name} not found with path: {path}")
         # return None

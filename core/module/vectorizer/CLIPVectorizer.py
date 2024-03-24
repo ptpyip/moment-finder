@@ -1,4 +1,4 @@
-import math
+import os
 import torch
 import clip
 import numpy as np
@@ -7,6 +7,7 @@ from PIL import Image
 
 
 from .base import BaseVectorizer
+from . import clip4clip 
 
 class CLIPVectorizer(BaseVectorizer): 
     def __init__(self, model_name="ViT-B/32") -> None:
@@ -15,7 +16,19 @@ class CLIPVectorizer(BaseVectorizer):
         super().__init__()
     
     def load_model(self, *args):
+        if len(self.model_name.split('-')) == 3:
+            """use CLIP4Clip's clip model"""
+            clip4clip_model, self.transform = clip4clip.load(
+                path=os.path.join(clip4clip.GPU_CKPTS_DIR, clip4clip.MODELS[self.model_name]),
+                model_name=self.model_name,
+                device="cuda"
+            )
+            
+            self.model = clip4clip_model.clip
+            return
+
         self.model, self.transform = clip.load(self.model_name, device=self.device)
+        return
         
     def vectorize_txt(self, txt:str):
         with torch.no_grad():
