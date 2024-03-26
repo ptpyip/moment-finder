@@ -1,0 +1,149 @@
+.chatbot {
+  font-family: monospace;
+  border-radius: 10px;
+  box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.15);
+  background: #f5f8fb;
+  text-align: center;
+  display: flex;
+  flex-flow: column;
+  width: 700px;
+  overflow: hidden;
+}
+
+.header {
+  padding: 20px;
+  text-align: center;
+  color: rgb(255, 255, 255);
+  max-height: 58px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #002f50;
+}
+
+.messages {
+  width: 100%;
+  height: 400px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0px;
+}
+
+.bot-message {
+  /* float: left; */
+  padding: 15px 20px;
+  margin: 5px;
+  border-radius: 20px 20px 20px 1px;
+  background: #00aaa5;
+  color: white;
+  min-width: 40px;
+}
+
+.user-message {
+  width: max-content;
+  padding: 15px 10px;
+  margin: 10px;
+  border-radius: 20px 20px 1px 20px;
+  background: #cccccc;
+  color: black;
+}
+
+.input {
+  position: relative;
+}
+
+.input > form > input[type="text"] {
+  font-family: monospace;
+  font-size: 16px;
+  border: 0;
+  border-radius: 0;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-top: 1px solid #eee;
+  box-shadow: none;
+  box-sizing: border-box;
+  opacity: 1;
+  outline: none;
+  padding: 16px 52px 16px 10px;
+  width: 100%;
+  -webkit-appearance: none;
+}
+
+.input > form > input:focus {
+  outline: none;
+}
+
+.input > form > button {
+  background-color: transparent;
+  border: 0;
+  border-bottom-right-radius: 10px;
+  box-shadow: none;
+  cursor: pointer;
+  fill: #4a4a4a;
+  opacity: 1;
+  outline: none;
+  padding: 14px 16px 12px 16px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+
+/* Styles added by Herman */
+.message-container:has(.user-message) {
+  text-align: right;
+}
+.user-message {
+  display: inline-block;
+}
+
+.text-container {
+  text-align: left;
+  padding: 10px;
+}
+
+.content-container {
+  background-color: #cccccc;
+  padding: 5px;
+  border-style: solid;
+  border-color: black;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.video-container {
+  position: relative;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.description-container {
+  padding: 10px;
+  padding-left: 20px;
+  color: black;
+  font-weight: bold;
+}
+
+.horizontal-scroll-container  {
+  overflow-y: scroll;
+  white-space: nowrap;
+}
+
+.horizontal-scroll-container > .player-container {
+  display: inline-block;
+  height: 200px;
+  padding-left: 10px;
+  padding-right: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.player-wrapper {
+  height: 100%;
+  /* margin-left: 50%;
+  transform: translateX(-50%); */
+}
+
+.player-wrapper > div {
+  
+}
