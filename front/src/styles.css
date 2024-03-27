@@ -164,7 +164,7 @@
   transition: height 0.5s;
 }
 .thumbnail-container:hover {
-  height: 200px;
+  height: 180px;
 }
 
 

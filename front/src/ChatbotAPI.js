@@ -15,11 +15,11 @@ const API = {
             "url": "https://www.youtube.com/watch?v=CT4N_v0dcbc",
             "scenes" : [
               {
-                "timestamp": 0,
+                "timestamp": 2,
                 "thumbnail": base64_data
               },
               {
-                "timestamp": 0,
+                "timestamp": 10,
                 "thumbnail": base64_data
               }
             ]
