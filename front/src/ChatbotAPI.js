@@ -1,3 +1,5 @@
+import base64_data from './o_o.jpeg'
+
 const API = {
   GetChatbotResponse: async message => {
     return new Promise(function(resolve, reject) {
@@ -12,8 +14,14 @@ const API = {
             "name": "Video 1",
             "url": "https://www.youtube.com/watch?v=CT4N_v0dcbc",
             "scenes" : [
-              {"timestamp": 0},
-              {"timestamp": 0}
+              {
+                "timestamp": 0,
+                "thumbnail": base64_data
+              },
+              {
+                "timestamp": 0,
+                "thumbnail": base64_data
+              }
             ]
           },
           // scene 2
@@ -21,7 +29,8 @@ const API = {
             "name": "Video 2",
             "url": "https://www.youtube.com/watch?v=CT4N_v0dcbc",
             "scenes" : [{
-              "timestamp": 0
+              "timestamp": 0,
+              "thumbnail": base64_data
             }]
           }
         ]

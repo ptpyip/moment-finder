@@ -12,7 +12,8 @@ export default function BotMessage({ fetchMessage: fetchResult }) {
         "name": "Video 1",
         "url": "https://www.youtube.com/watch?v=CT4N_v0dcbc",
         "scenes" : [{
-          "timestamp": 0
+          "timestamp": 0,
+          "thumbnail": ""
         }]
       },
       // scene 2
@@ -20,7 +21,8 @@ export default function BotMessage({ fetchMessage: fetchResult }) {
         "name": "Video 2",
         "url": "https://www.youtube.com/watch?v=CT4N_v0dcbc",
         "scenes" : [{
-          "timestamp": 0
+          "timestamp": 0,
+          "thumbnail": ""
         }]
       }
     ]
@@ -56,16 +58,28 @@ export default function BotMessage({ fetchMessage: fetchResult }) {
             return (
               <div className="video-container container">
                 <div className="description-container container">
-                  {video.name}
+                  <div className="video-description">
+                    {video.name}
+                  </div>
+                </div>
+                <div className="player-container container">
+                  <div className="player-wrapper">
+                    {/* Use the react player component */}
+                    <ReactPlayer url={video.url} width='100%' height='100%' />
+                  </div>
                 </div>
                 <div className="horizontal-scroll-container container">
                   {
                     video.scenes.map(scene => {
                       return (
-                        <div className="player-container container">
-                          <div className="player-wrapper">
-                            {/* Use the react player component */}
-                            <ReactPlayer url={video.url} width='100%' height='100%' />
+                        <div className="scene-container container">
+                          <div className="scene-description-container container">
+                            {scene.timestamp}
+                          </div>
+                          <div className="thumbnail-container container">
+                            <div className="image-container container">
+                              <img src={scene.thumbnail} alt="" />
+                            </div>
                           </div>
                         </div>
                       )

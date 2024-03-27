@@ -1,12 +1,18 @@
+.root {
+  text-align: center;
+}
+
 .chatbot {
+  display: inline-block;
+  /* display: flex; */
   font-family: monospace;
   border-radius: 10px;
   box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.15);
   background: #f5f8fb;
   text-align: center;
-  display: flex;
   flex-flow: column;
-  width: 700px;
+  max-width: 1000px;
+  width: 100%;
   overflow: hidden;
 }
 
@@ -22,7 +28,8 @@
 
 .messages {
   width: 100%;
-  height: 400px;
+  min-height: 400px;
+  max-height: 600px;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -117,6 +124,14 @@
   padding-bottom: 5px;
 }
 
+.video-container > .container:not(:nth-last-child(0)) {
+  padding-bottom: 10px;
+}
+.video-container > .container {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 .description-container {
   padding: 10px;
   padding-left: 20px;
@@ -124,26 +139,60 @@
   font-weight: bold;
 }
 
+.video-description {
+  text-align: center;
+  font-size: large;
+  padding: 5px;
+}
+
 .horizontal-scroll-container  {
   overflow-y: scroll;
   white-space: nowrap;
 }
 
-.horizontal-scroll-container > .player-container {
+.horizontal-scroll-container > .container {
   display: inline-block;
-  height: 200px;
-  padding-left: 10px;
-  padding-right: 10px;
   overflow: hidden;
   position: relative;
+}
+.horizontal-scroll-container > .container:not(:last-child) {
+  padding-right: 5px;
+}
+
+.thumbnail-container {
+  height: 150px;
+  transition: height 0.5s;
+}
+.thumbnail-container:hover {
+  height: 200px;
+}
+
+
+.scene-description-container {
+  font-size: large;
+  text-align: center;
+  color: black;
+  padding: 3px;
+}
+
+.scene-container > .thumbnail-container:hover {
+  height: 200px;
+}
+
+.thumbnail-container > .image-container {
+  height: 100%;
+}
+
+.image-container img {
+  height: 100%;
+}
+
+.player-container {
+  height: 300px;
 }
 
 .player-wrapper {
   height: 100%;
   /* margin-left: 50%;
   transform: translateX(-50%); */
-}
-
-.player-wrapper > div {
-  
 }
