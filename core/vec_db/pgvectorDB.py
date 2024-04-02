@@ -41,7 +41,7 @@ class PgvectorDB:
                             ORDER BY distance limit 100
                         ) AS vector_table
                         GROUP BY moment_id       
-                        ORDER BY min(distance) limit 5 
+                        ORDER BY min(distance) limit {k} 
                     ) AS result_table 
                     ON result_table.moment_id = moment_table.id 
             """)).fetchall()
