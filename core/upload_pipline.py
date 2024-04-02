@@ -5,7 +5,7 @@ from .vec_db import SupabaseDB
 from .utils import video_processing
 from .utils import VideoExtractor
 from .module.segmenter import ShotDetectSegmenter
-from .module.vectorizer import CLIPVectorizer
+from .module.vectorizer import CLIPVectorizer, CLIP4ClipVectorizer
 
 def clean_dir(dir):
     for filename in os.listdir(dir):
@@ -19,7 +19,8 @@ class UploadPipeline():
     
     def __init__(self, 
         moment_table_name=None, 
-        vector_table_name=None
+        vector_table_name=None,
+        use_moment_vector=False
     ) -> None:
         if not os.path.exists(self.MOMENT_OUT_DIR):
             os.mkdir(self.MOMENT_OUT_DIR)
@@ -29,8 +30,55 @@ class UploadPipeline():
         
         self.segmenter = ShotDetectSegmenter(self.MOMENT_OUT_DIR, use_adaptive=True) 
         self.extractor = VideoExtractor()
-        self.vectorizer = CLIPVectorizer()
+        self.frame_vectorizer = CLIPVectorizer()
+        self.moment_vectorizer = CLIP4ClipVectorizer(
+           model_name="meanP-ViT-B/16",
+           model_path="/csproject/dan3/downloads/ckpts/meanP-ViT-B-16.bin.3"
+        ) if use_moment_vector else None
         self.db = SupabaseDB()
+        
+    def upload_moment_vector(self, video_path, insert_non_existed_moment=False):
+        assert os.path.exists(video_path)
+
+        clean_dir(self.MOMENT_OUT_DIR)
+        timestamp_list = self.segmenter.split(video_path)        ## Split to MOMENT_OUT_DIR
+        
+        moment_datas = self.vectorize_moments()
+                
+        ## upload 
+        
+        # create one moment
+        # then upload vectors fro each frame for that moment
+        for moment, timestamp in zip(moment_datas, timestamp_list): 
+            moment_id, count = (
+                self.db.supabase_client.table(self.moment_table_name)
+                    .select("id")
+                    .eq("name", moment.get("name",""))
+                    .excute()
+            )
+            
+            if count == 0:
+                if insert_non_existed_moment:
+                    moment_id = self.db.insert(
+                        table_name=self.moment_table_name,
+                        data={
+                            "name": moment.get("name",""),
+                            "timestamp": list(timestamp)
+                        }        
+                    ).data[0]["id"]
+                else: 
+                    print("moment not found")
+                    continue
+                
+            temporal_vector = moment["vector"]
+            res = self.db.update_by_id(
+                    self.moment_table_name, 
+                    moment_id,
+                    data = {
+                        "vector": temporal_vector.tolist(),                     # json only support list
+                    }
+                ) 
+        
     
     def upload_video_file(self, video_path):
         assert os.path.exists(video_path)
@@ -87,7 +135,7 @@ class UploadPipeline():
             
             moment_path = os.path.join(moment_dir, file_name)
             moment_frames = self.extract_frames(moment_path)
-            moment_features = self.vectorize_frames(moment_frames)
+            moment_features = self.vectorizer.vectorize_frames(moment_frames)
             
             moment_datas.append({
                 "name": file_name,
@@ -102,15 +150,16 @@ class UploadPipeline():
         return self.extractor.get_frames(video_path)
     
     def vectorize_frames(self, frames:list):
-        tensor = self.extractor.frames2tensor(frames)
-        return self.vectorizer.vectorize_img_tensor(tensor)
+        raise NotImplementedError
+        # tensor = self.extractor.frames2tensor(frames)
+        # return self.vectorizer.vectorize_img_tensor(tensor)
                    
     def vectorize_file(self, video_path):
         assert os.path.exists(video_path)
         
         frames = self.extractor.get_frames(video_path) 
-        tensor = self.extractor.frames2tensor(frames)
+        # tensor = self.extractor.frames2tensor(frames)
         
-        return self.vectorizer.vectorize_img_tensor(tensor)
+        return self.vectorizer.vectorize_frames(frames)
     
     

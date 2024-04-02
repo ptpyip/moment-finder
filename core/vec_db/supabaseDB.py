@@ -23,3 +23,12 @@ class SupabaseDB:
     def fetch(self, vector):
         """ use SQL to perfrom fetching"""
         pass
+
+    def update_by_id(self, table_name, data_id, data):
+        return self.supabase_client.table(table_name).update(data).eq("id", data_id).execute()
+    # def get(self, table_name, column, condition):
+    #     res = (
+    #         self.supabase_client.table(table_name) 
+    #             .select(column)
+    #             .eq(condition)
+    #     )
