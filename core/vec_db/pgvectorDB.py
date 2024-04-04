@@ -3,6 +3,7 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import DatabaseError
 
 def get_pg_db_url(server_url, port_num, db_name, user_name, pwd):
     return f"postgresql://{user_name}:{pwd}@{server_url}:{port_num}/{db_name}" 
@@ -20,6 +21,9 @@ class PgvectorDB:
         self.PG_DB_CONNECTION = get_pg_db_url(server_url, port_num, db_name, user_name, pwd)
         self.engine = create_engine(self.PG_DB_CONNECTION)
         self.Session = sessionmaker(self.engine)
+        
+        assert self.test_connection_success()
+
         
     # def set_VMR_table(self, moment_table_name, )
 
@@ -118,3 +122,12 @@ class PgvectorDB:
                 SELECT *
                 FROM items 
             """)).fetchall()
+            
+    def test_connection_success(self):
+        try:
+            self.test_connection()
+            return True
+        except DatabaseError:
+            return False
+            
+    
