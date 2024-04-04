@@ -183,7 +183,7 @@ def test_upload():
     parser = argparse.ArgumentParser("Test Upload Pipeline")
     parser.add_argument("moment-table", type=str)
     parser.add_argument("vector-table", type=str)
-    parser.add_argument("use-moment-vector", action='store_true', default=False)
+    parser.add_argument("use-moment-vector", action='store_true')
     parser.add_argument("video", type=str)
     args = parser.parse_args()
     
