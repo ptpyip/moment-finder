@@ -20,13 +20,15 @@ class UploadPipeline():
     def __init__(self, 
         moment_table_name=None, 
         vector_table_name=None,
-        use_moment_vector=False
+        use_moment_vector=False,
+        upload_frame=True
     ) -> None:
         if not os.path.exists(self.MOMENT_OUT_DIR):
             os.mkdir(self.MOMENT_OUT_DIR)
             
         self.moment_table_name = moment_table_name
         self.vector_table_name = vector_table_name
+        self.use_moment_vector = use_moment_vector
         
         self.segmenter = ShotDetectSegmenter(self.MOMENT_OUT_DIR, use_adaptive=True) 
         self.extractor = VideoExtractor()
@@ -93,19 +95,27 @@ class UploadPipeline():
         # create one moment
         # then upload vectors fro each frame for that moment
         for moment, timestamp in zip(moment_datas, timestamp_list):
+            moment_data = {
+                "name": moment.get("name",""),
+                "timestamp": list(timestamp),
+            } 
             
+            if self.use_moment_vector:
+                moment_data = moment_data | {"vector": moment.get("vector")}
+
             res = self.db.insert(
                 table_name=self.moment_table_name,
-                data={
-                    "name": moment.get("name",""),
-                    "timestamp": list(timestamp)
-                }        
+                data=moment_data
+                # data={
+                #     "name": moment.get("name",""),
+                #     "timestamp": list(timestamp),
+                # } | {"vector": moment.get("vector")} if self.use_moment_vector else {}
             )
                     
             moment_id = res.data[0]["id"]       # may need chane when new db is used?
             
             frames = moment.get("frames", [])
-            features = moment.get("features", [])    
+            features = moment.get("frame_vectors", [])    
             for frame, feature in zip(frames, features):
                 frame_base64 = video_processing.encode_img_to_base64(frame)
                 
@@ -120,7 +130,7 @@ class UploadPipeline():
         
         ## clean dir
         
-        
+    
       
     def vectorize_moments(self, moment_dir=None):
         if moment_dir is None:
@@ -135,12 +145,16 @@ class UploadPipeline():
             
             moment_path = os.path.join(moment_dir, file_name)
             moment_frames = self.extract_frames(moment_path)
-            moment_features = self.vectorizer.vectorize_frames(moment_frames)
+            
+            ### vectorize moments
+            moment_vector = self.moment_vectorizer.vectorize_moment(moment_frames) if self.use_moment_vector else None
+            frame_vectors = self.frame_vectorizer.vectorize_frames(moment_frames)
             
             moment_datas.append({
                 "name": file_name,
                 "frames":  moment_frames,
-                "features": moment_features
+                "frame_vectors": frame_vectors,
+                "vector": moment_vector
             })   
         
         return moment_datas
