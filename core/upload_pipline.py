@@ -183,11 +183,11 @@ def test_upload():
     parser = argparse.ArgumentParser("Test Upload Pipeline")
     parser.add_argument("moment-table", type=str)
     parser.add_argument("vector-table", type=str)
-    parser.add_argument("use-moment-vector", action='store_true')
+    # parser.add_argument("use-moment-vector", action='store_true')
     parser.add_argument("video", type=str)
     args = parser.parse_args()
     
-    up = UploadPipeline(args.moment_table,args.vector_table, args.use_moment_vector, upload_frame=False)
+    up = UploadPipeline(args.moment_table,args.vector_table, use_moment_vector=True, upload_frame=False)
     up.upload_video_file(args.video)
     
     print("success")
