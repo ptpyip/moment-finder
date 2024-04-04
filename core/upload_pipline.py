@@ -176,4 +176,24 @@ class UploadPipeline():
         
         return self.vectorizer.vectorize_frames(frames)
     
+## test
+def test_upload():
+    import argparse
+
+    parser = argparse.ArgumentParser("Test Upload Pipeline")
+    parser.add_argument("moment-table", type=str)
+    parser.add_argument("vector-table", type=str)
+    parser.add_argument("use-moment-vector", action='store_true', default=False)
+    parser.add_argument("video", type=str)
+    args = parser.parse_args()
     
+    up = UploadPipeline(args.moment_table,args.vector_table, args.use_moment_vector, upload_frame=False)
+    up.upload_video_file(args.video)
+    
+    print("success")
+    # up.upload_video_file(test_upload)
+    
+    
+    
+if __name__ == "__main__":
+    test_upload()
