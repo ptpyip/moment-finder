@@ -5,11 +5,12 @@ from .module.vectorizer import CLIPVectorizer
 from .module.segmenter import ShotDetectSegmenter
 
 class RetrievalPipeline:
-    db = PgvectorDB(
-        server_url="localhost",
-        pwd="password"
-    )
-    vectorizer = CLIPVectorizer()
+    def __init__(self) -> None:
+        self.db = PgvectorDB(
+            server_url="localhost",
+            pwd="password"
+        )
+        self.vectorizer = CLIPVectorizer()
     
     def retrive_moment_ids(self, prompt: str, k=5):
         query_vec = self.vectorizer.vectorize_txt(prompt)
