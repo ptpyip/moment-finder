@@ -43,7 +43,7 @@ class ShotDetectSegmenter(BaseVideoSegmenter):
           
         ### create detector for each split.
         self.use_adaptive = use_adaptive
-        self.Detector = lambda self: AdaptiveDetector(
+        self.Detector = lambda : AdaptiveDetector(
             adaptive_threshold, min_content_val=self.content_threshold
         ) if self.use_adaptive else ContentDetector(self.content_threshold)
 
