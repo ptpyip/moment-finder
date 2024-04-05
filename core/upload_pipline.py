@@ -101,15 +101,13 @@ class UploadPipeline():
             } 
             
             if self.use_moment_vector:
-                moment_data = moment_data | {"vector": moment.get("vector")}
+                moment_data = moment_data | {
+                    "vector": moment.get("vector").tolist()
+                }
 
             res = self.db.insert(
                 table_name=self.moment_table_name,
                 data=moment_data
-                # data={
-                #     "name": moment.get("name",""),
-                #     "timestamp": list(timestamp),
-                # } | {"vector": moment.get("vector")} if self.use_moment_vector else {}
             )
                     
             moment_id = res.data[0]["id"]       # may need chane when new db is used?
