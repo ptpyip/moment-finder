@@ -9,10 +9,11 @@ const API = {
       const result = {
         "message": message,
         "videos": [
-          // scene 1
+          // video 1
           {
             "name": "Video 1",
-            "url": "https://www.youtube.com/watch?v=CT4N_v0dcbc",
+            // "url": "https://www.youtube.com/watch?v=CT4N_v0dcbc",
+            "url": "harry-potter.mp4",
             "scenes" : [
               {
                 "timestamp": 2,
@@ -24,7 +25,7 @@ const API = {
               }
             ]
           },
-          // scene 2
+          // video 2
           {
             "name": "Video 2",
             "url": "https://www.youtube.com/watch?v=CT4N_v0dcbc",

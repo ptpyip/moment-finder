@@ -68,7 +68,7 @@ export default function BotMessage({ fetchMessage: fetchResult }) {
                 </div>
                 <div className="player-container container">
                   {/* Use the react player component */}
-                  <ReactPlayer url={video.url} width='100%' height='100%' ref={video_refs.current[video_index]} />
+                  <ReactPlayer controls playing url={video.url} width='100%' height='100%' ref={video_refs.current[video_index]} />
                 </div>
                 <div className="horizontal-scroll-container container">
                   {
@@ -84,11 +84,11 @@ export default function BotMessage({ fetchMessage: fetchResult }) {
                             // const video = theContent.current.children[video_index];
 
                             // reference to ReactPlayer in player-container
-                            const player_ref = video_refs.current[video_index];
-                            console.log("video_index:"+video_index);
-                            const player = player_ref.current;
+                            // console.log("video_index:"+video_index);
                             // console.log((player))
-
+                            
+                            const player_ref = video_refs.current[video_index];
+                            const player = player_ref.current;
                             player.seekTo(scene.timestamp,'seconds');
                             // player.playing = true;
                           }}>
