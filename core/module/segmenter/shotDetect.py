@@ -37,7 +37,9 @@ class ShotDetectSegmenter(BaseVideoSegmenter):
         
         self.content_threshold = content_threshold
         
-        self.output_file_template = f'{output_dir}/$VIDEO_NAME-Scene-$SCENE_NUMBER.mp4'  
+        # self.output_file_template = f'{output_dir}/$VIDEO_NAME-Scene-$SCENE_NUMBER.mp4'  
+        # for some reason there is a bug which template become folder name, like output_dir/$VIDEO_NAME-Scene-$SCENE_NUMBER.mp4/file.mp4 
+        self.output_file_template = output_dir      
           
         ### create detector for each split.
         self.use_adaptive = use_adaptive
