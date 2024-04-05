@@ -47,7 +47,7 @@ class CLIPVectorizer(BaseVectorizer):
         
         return img_features
     
-    def vectorize_frames(self, frames):
+    def vectorize_frames(self, frames: list[Image.Image]):
         frames_tensor = self.preprocess(frames)
         
         with torch.no_grad():
@@ -57,11 +57,9 @@ class CLIPVectorizer(BaseVectorizer):
         return frame_features 
 
     def preprocess(self, frames):
-        if len(frames) > 0:
-            return torch.tensor(np.stack(map(self.transform, frames)))
-            # return self.transform(np.stack(frames))
-        else:
-            return torch.zeros(1)
+        return torch.stack([
+            self.transform(frame) for frame in frames
+        ]).to(self.device)
         
 
     # def vectorize_img_tensor(self, img_tensor: torch.Tensor):
