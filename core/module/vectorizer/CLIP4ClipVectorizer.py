@@ -42,10 +42,10 @@ class CLIP4ClipVectorizer(BaseVectorizer):
             video_features =  self.model.encode_moments(
                 moment_tensor.to(self.device),
                 moment_mask.to(self.device) 
-            )
+            )   # size =  (bs, dim)
             video_features /= video_features.norm(dim=-1, keepdim=True)
         
-        return video_features 
+        return video_features[0]        # batch_size = 1 
 
     def preprocess(self, moments: List[List[Image]]):
         assert isinstance(moments, list)
