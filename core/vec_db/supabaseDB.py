@@ -23,3 +23,18 @@ class SupabaseDB:
     def fetch(self, vector):
         """ use SQL to perfrom fetching"""
         pass
+
+    def fetch_base64_by_ids(self, table_name, ids):
+        # there are more than one moment with the same id
+        # just fetch the first appearing moment for each id
+        frames = []
+        for id in ids:
+            response = self.supabase_client.table(table_name).select("*").eq("moment_id", id).limit(1).execute()
+            data = response.data[0]
+            frame_base64 = data.get('frame_base64')
+            frames.append(frame_base64)
+
+            # type of response is APIResponse
+            # data of response APIResponse is as follows: 'data=[{'id': 1, 'created_at': ..., 'frame_base64': ..., 'moment_id': 1, 'vector': ...}]'
+        
+        return frames
