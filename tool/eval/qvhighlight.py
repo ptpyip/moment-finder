@@ -47,7 +47,7 @@ def retrieve_video_using_dataset_prompt(file_path, k=5):
 
     result = []
     for data in load_jsonl(file_path):        
-        retrieval_result = rp.retrieve_moments(data.get("query"), k=5)
+        retrieval_result = rp.retrieve_moments(data.get("query"), k=5, video_name=data.get("vid"))
         
         pred_relevant_windows = []
         for moment_id, video_name, timestamp, cos_dist in retrieval_result:
@@ -77,7 +77,7 @@ def test_retrieval(prompt):
     
 if __name__ == "__main__":
     print("hi")
-    DATA_PATH = "/home/ptpyip/fyp/datasets/qvhilights"
+    DATA_PATH = "/home/ptpyip/fyp/datasets/qvhighlights"
     # upload_video_from_dataset(f"{DATA_PATH}/highlight_val_release.jsonl", f"{DATA_PATH}/videos")
     # test_retrieval("Police in riot gear are marching down the street.")
     retrieve_video_using_dataset_prompt(f"{DATA_PATH}/highlight_val_release.jsonl")

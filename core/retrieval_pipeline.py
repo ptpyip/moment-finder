@@ -23,7 +23,7 @@ class RetrievalPipeline:
             )                        # [(id, dist)]
 
     def retrieve_moments(self, prompt: str, k=5) -> dict:
-        """ return [moment_id, video_name,  timestamp, cos_dist)] """
+        """ return [(moment_id, video_name, timestamp, cos_dist, frame_ids)] """
         query_vec = self.vectorizer.vectorize_txt(prompt)
 
         # retrieve k moments

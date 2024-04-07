@@ -4,6 +4,7 @@ from PIL import Image
 from io import BytesIO
 from core import RetrievalPipeline
 
+pipeline = RetrievalPipeline()      ## Golbal pipeline reduce response time 
 def base64_to_image(base64_str):
     decoded_image = base64.b64decode(base64_str)
     img = Image.open(BytesIO(decoded_image))
@@ -12,22 +13,28 @@ def base64_to_image(base64_str):
 
 def video_search(search_query, k=3): 
     print(f"Search Query: {search_query}")
-
-    pipeline = RetrievalPipeline()
     moments = pipeline.retrieve_moments(search_query, k)
-    supabase_moments = pipeline.retrieve_base64_by_ids([moment[0] for moment in moments])
+    
+    distances = []
+    display_frame_ids = []
+    for i, moment in enumerate(moments):
+        moment_id, video_name, timestamp, cos_dist, frame_ids = moment
+        most_similar_frame_id = int(frame_ids[0])       # ordered by min(distance) 
+        
+        ## TODO: future processing of video_name
+        
+        # log
+        print(f"Moment Retried [{i}]: ({cos_dist}) moment {moment_id} from {video_name} has timestamp {timestamp}" )
+        distances.append(cos_dist)
+        display_frame_ids.append(most_similar_frame_id) 
+
+    supabase_moments = pipeline.retrieve_base64_by_ids(display_frame_ids)
 
     images = []
     for s_moment in supabase_moments:
         img = base64_to_image(s_moment)
         print(img)
         images.append(img)
-    
-    distances = []
-    for moment in moments:
-        cos_dist = moment[3]
-        print(cos_dist)
-        distances.append(cos_dist)
 
     # return images and similarity scores
     return images[0], images[1], images[2], distances[0], distances[1], distances[2]
@@ -65,22 +72,30 @@ def video_search_with_id(video_id, search_query, k=3):
     print(f"Search Query: {search_query}")
     print(f"Video ID: {video_id}")
 
-    pipeline = RetrievalPipeline()
     moments = pipeline.retrieve_moments_by_video_id(video_id, search_query, k)
-    supabase_moments = pipeline.retrieve_base64_by_ids([moment[0] for moment in moments])
+    
+    distances = []
+    display_frame_ids = []
+    for i, moment in enumerate(moments):
+        moment_id, video_name, timestamp, cos_dist, frame_ids = moment 
+        most_similar_frame_id = int(frame_ids[0])       # ordered by min(distance)
+        
+        ## TODO: future processing of video_name
+        
+        # log
+        print(f"Moment Retried [{i}]: ({cos_dist}) moment {moment_id} from {video_name} has timestamp {timestamp}" )
+        distances.append(cos_dist)
+        display_frame_ids.append(most_similar_frame_id) 
+        
+    supabase_moments = pipeline.retrieve_base64_by_ids(display_frame_ids)
 
     images = []
     for s_moment in supabase_moments:
         img = base64_to_image(s_moment)
         print(img)
         images.append(img)
-    
-    distances = []
-    for moment in moments:
-        cos_dist = moment[3]
-        print(cos_dist)
-        distances.append(cos_dist)
-    
+   
+    # print(display_frame_ids) 
     return images[0], images[1], images[2], distances[0], distances[1], distances[2]
     
 
