@@ -30,12 +30,12 @@ class PgvectorDB:
             
             return session.execute(text(f"""
                 SET LOCAL hnsw.ef_search = 100;
-                SELECT id, name, timestamp, min_distance
+                SELECT id, name, timestamp, min_distance, frame_ids
                 FROM {moment_table_name} AS moment_table
                     JOIN (
-                        SELECT moment_id, min(distance) AS min_distance
+                        SELECT moment_id, min(distance) AS min_distance, array_agg(id) as frame_ids
                         FROM (
-                            SELECT moment_id,
+                            SELECT id, moment_id,
                                 vector <=> '{input_vector.squeeze().tolist()}' AS distance         
                             FROM {vector_table_name}
                             ORDER BY distance limit 100
@@ -54,12 +54,12 @@ class PgvectorDB:
             
             return session.execute(text(f"""
                 SET LOCAL hnsw.ef_search = 100;
-                SELECT id, name, timestamp, min_distance
+                SELECT id, name, timestamp, min_distance, frame_ids
                 FROM {moment_table_name} AS moment_table
                     JOIN (
-                        SELECT moment_id, min(distance) AS min_distance
+                        SELECT moment_id, min(distance) AS min_distance, array_agg(id) as frame_ids
                         FROM (
-                            SELECT moment_id,
+                            SELECT id, moment_id,
                                 vector <=> '{input_vector.squeeze().tolist()}' AS distance         
                             FROM {vector_table_name}
                             WHERE moment_id IN (
