@@ -18,161 +18,147 @@ class UploadPipeline():
     MOMENT_OUT_DIR = "/homes/ptpyip/dev/tmp/proposal"
     
     def __init__(self, 
-        moment_table_name=None, 
-        vector_table_name=None,
-        use_moment_vector=False,
-        upload_frame=True
+        moment_table_name, 
+        frame_table_name,
+        clip_name="ViT-B/32",
+        clip4clip_name="meanP-ViT-B/16",
+        clip4clip_path="/csproject/dan3/downloads/ckpts/meanP-ViT-B-16.bin.3",
+        use_moment_vector=False, store_frame=True
     ) -> None:
         if not os.path.exists(self.MOMENT_OUT_DIR):
             os.mkdir(self.MOMENT_OUT_DIR)
             
         self.moment_table_name = moment_table_name
-        self.vector_table_name = vector_table_name
+        self.frame_table_name = frame_table_name
         self.use_moment_vector = use_moment_vector
+        self.store_frame = store_frame 
         
-        self.segmenter = ShotDetectSegmenter(self.MOMENT_OUT_DIR, use_adaptive=True) 
-        self.extractor = VideoExtractor()
-        self.frame_vectorizer = CLIPVectorizer()
-        self.moment_vectorizer = CLIP4ClipVectorizer(
-           model_name="meanP-ViT-B/16",
-           model_path="/csproject/dan3/downloads/ckpts/meanP-ViT-B-16.bin.3"
-        ) if use_moment_vector else None
         self.db = SupabaseDB()
-        
-    def upload_moment_vector(self, video_path, insert_non_existed_moment=False):
-        assert os.path.exists(video_path)
+        self.extractor = VideoExtractor()
+        self.segmenter = ShotDetectSegmenter(self.MOMENT_OUT_DIR, use_adaptive=True) 
 
-        clean_dir(self.MOMENT_OUT_DIR)
-        timestamp_list = self.segmenter.split(video_path)        ## Split to MOMENT_OUT_DIR
+
+        clip_path = None
+        if clip_name == clip4clip_name:
+            """ use clip4clip's clip"""
+            clip_path = clip4clip_path
+        self.frame_vectorizer = CLIPVectorizer(clip_name, clip_path)
+        self.moment_vectorizer = CLIP4ClipVectorizer(
+           clip4clip_name, clip4clip_path
+        ) if use_moment_vector else None
         
-        moment_datas = self.vectorize_moments()
-                
-        ## upload 
-        
-        # create one moment
-        # then upload vectors fro each frame for that moment
-        for moment, timestamp in zip(moment_datas, timestamp_list): 
-            moment_id, count = (
-                self.db.supabase_client.table(self.moment_table_name)
-                    .select("id")
-                    .eq("name", moment.get("name",""))
-                    .excute()
-            )
-            
-            if count == 0:
-                if insert_non_existed_moment:
-                    moment_id = self.db.insert(
-                        table_name=self.moment_table_name,
-                        data={
-                            "name": moment.get("name",""),
-                            "timestamp": list(timestamp)
-                        }        
-                    ).data[0]["id"]
-                else: 
-                    print("moment not found")
-                    continue
-                
-            temporal_vector = moment["vector"]
-            res = self.db.update_by_id(
-                    self.moment_table_name, 
-                    moment_id,
-                    data = {
-                        "vector": temporal_vector.tolist(),                     # json only support list
-                    }
-                ) 
-        
+        return    
+    
     
     def upload_video_file(self, video_path):
-        assert os.path.exists(video_path)
-
+        assert os.path.exists(video_path) 
         clean_dir(self.MOMENT_OUT_DIR)
-        timestamp_list = self.segmenter.split(video_path)        ## Split to MOMENT_OUT_DIR
         
-        moment_datas = self.vectorize_moments() 
-                
-        ## upload 
-        
-        # create one moment
-        # then upload vectors fro each frame for that moment
-        for moment, timestamp in zip(moment_datas, timestamp_list):
-            moment_data = {
-                "name": moment.get("name",""),
-                "timestamp": list(timestamp),
-            } 
-            
-            if self.use_moment_vector:
-                moment_data = moment_data | {
-                    "vector": moment.get("vector").tolist()
-                }
+        video_segments = self.segmenter.split(video_path)
+        return self.upload_video_segments(video_segments)
+         
+    def upload_video_segments(self, segments: list[tuple[str, float, float]]):
+        """
+        1. extract frame from video splits
+        2. vectorize moment
+        3. insert moment to db
+        4. insert frames to db
+        """
+        for segment_path, *timestamp in tqdm.tqdm(segments):
 
-            res = self.db.insert(
-                table_name=self.moment_table_name,
-                data=moment_data
-            )
-                    
-            moment_id = res.data[0]["id"]       # may need chane when new db is used?
+            frames = self.extract_frames(segment_path)
             
-            frames = moment.get("frames", [])
-            features = moment.get("frame_vectors", [])    
-            for frame, feature in zip(frames, features):
-                frame_base64 = video_processing.encode_img_to_base64(frame)
-                
-                res = self.db.insert(
-                    self.vector_table_name,
-                    data = {
+            ### vectorize moment
+            moment_vector = self.moment_vectorizer.vectorize_moment(frames) if self.use_moment_vector else None
+            frame_vectors = self.vectorize_frames(frames) 
+            
+            if moment_vector is not None:
+                """TODO: 
+                    - Additional logic to merge moments
+                """
+                pass
+            
+            ### insert moment
+            res = self.db.insert(self.moment_table_name, {
+                "name": splited_path.rsplit("/", 1)[0].rsplit(".", 1)[0],       # output_dir/$VIDEO_NAME-Scene-$SCENE_NUMBER.mp4 -> $VIDEO_NAME-Scene-$SCENE_NUMBER
+                "timestamp": list(timestamp),
+                "vector": moment_vector.tolist() if self.use_moment_vector else None      # type: ignore
+            })
+            moment_id = res.data[0]["id"]  
+
+            for i, vector in enumerate(frame_vectors):
+                if self.store_frame:
+                    frame = video_processing.encode_img_to_base64(frames[i]).decode("utf-8")
+                else:
+                    frame = None
+                    
+                res = self.db.insert(self.frame_table_name, {
                         "moment_id": moment_id,
-                        "frame_base64": frame_base64.decode("utf-8"),           # need to turn byte to str, as JSON only accept str
-                        "vector": feature.tolist(),                              # jsn only support list
+                        "frame_base64": frame,           # need to turn byte to str, as JSON only accept str
+                        "vector": vector.tolist(),                              # jsn only support list
                     }
                 )
-        
-        ## clean dir
-        
-    
-      
-    def vectorize_moments(self, moment_dir=None):
-        if moment_dir is None:
-            moment_dir = self.MOMENT_OUT_DIR
-        else:
-           assert os.path.exists(moment_dir) 
-        
-        moment_datas = []
-        for file_name in tqdm.tqdm(os.listdir(moment_dir)):
-            if not file_name.endswith(".mp4"):
-                continue
-            
-            moment_path = os.path.join(moment_dir, file_name)
-            moment_frames = self.extract_frames(moment_path)
-            
-            ### vectorize moments
-            moment_vector = self.moment_vectorizer.vectorize_moment(moment_frames) if self.use_moment_vector else None
-            frame_vectors = self.frame_vectorizer.vectorize_frames(moment_frames)
-            
-            moment_datas.append({
-                "name": file_name,
-                "frames":  moment_frames,
-                "frame_vectors": frame_vectors,
-                "vector": moment_vector
-            })   
-        
-        return moment_datas
+                
+        return
     
     
     def extract_frames(self, video_path):
         return self.extractor.get_frames(video_path)
     
+    
     def vectorize_frames(self, frames:list):
-        raise NotImplementedError
-        # tensor = self.extractor.frames2tensor(frames)
-        # return self.vectorizer.vectorize_img_tensor(tensor)
+        """TODO: additional logic to filter frame_vector"""
+        return self.frame_vectorizer.vectorize_frames(frames)
+        
                    
-    def vectorize_file(self, video_path):
-        assert os.path.exists(video_path)
+    # def vectorize_file(self, video_path):
+    #     assert os.path.exists(video_path)
         
-        frames = self.extractor.get_frames(video_path) 
-        # tensor = self.extractor.frames2tensor(frames)
+    #     frames = self.extractor.get_frames(video_path) 
+    #     # tensor = self.extractor.frames2tensor(frames)
         
-        return self.vectorizer.vectorize_frames(frames)
+    #     return self.vectorizer.vectorize_frames(frames)
+    
+    
+    
+        
+    # def upload_moment_vector(self, video_path, insert_non_existed_moment=False):
+        """ stand a lone upload NOT USED """
+    #     assert os.path.exists(video_path)
+
+    #     clean_dir(self.MOMENT_OUT_DIR)
+    #     ## Split to MOMENT_OUT_DIR
+    #     timestamp_list = self.segmenter.split(video_path)        
+    #     moment_datas = self.vectorize_moments()
+        
+    #     for moment, timestamp in zip(moment_datas, timestamp_list): 
+    #         moment_id, count = (self.db.supabase_client.table(self.moment_table_name)
+    #                 .select("id")
+    #                 .eq("name", moment.get("name",""))
+    #                 .excute()
+    #         )
+            
+    #         if count == 0:
+    #             if insert_non_existed_moment:
+    #                 moment_id = self.db.insert(
+    #                     table_name=self.moment_table_name,
+    #                     data={
+    #                         "name": moment.get("name",""),
+    #                         "timestamp": list(timestamp)
+    #                     }        
+    #                 ).data[0]["id"]
+    #             else: 
+    #                 print("moment not found")
+    #                 continue
+                
+    #         temporal_vector = moment["vector"]
+    #         res = self.db.update_by_id(
+    #                 self.moment_table_name, 
+    #                 moment_id,
+    #                 data = {
+    #                     "vector": temporal_vector.tolist(),                     # json only support list
+    #                 }
+    #             ) 
     
 ## test
 def test_upload():

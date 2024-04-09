@@ -24,10 +24,15 @@ def write_jsonl(dict_list, out_dir, file_name):
 def upload_video_from_dataset(
         file_path, video_dir,
         moment_table_name="qvhiglight_clip_moment_0209",
-        vector_table_name="qvhiglight_clip_moment_vector_0209",
-        use_moment_vector=False, upload_frame=True
+        frame_table_name="qvhiglight_clip_moment_vector_0209",
+        use_moment_vector=False, store_frame=True
     ):
-    up = UploadPipeline(moment_table_name, vector_table_name, use_moment_vector, upload_frame)
+    up = UploadPipeline(
+        moment_table_name, 
+        frame_table_name,
+        use_moment_vector=use_moment_vector, 
+        store_frame=store_frame
+    )
     vids = {data["vid"] for data in load_jsonl(file_path)}   # use set to avoid repeat
     
     for vid in vids:
@@ -73,26 +78,29 @@ def retrieve_video_using_dataset_prompt(file_path, k=5):
     write_jsonl(result, "/home/ptpyip/fyp", "out")  
         
     
-def test_retrieval(prompt):
-    rp = RetrievalPipeline()
-    print(rp.retrive(str(prompt)))
+# def test_retrieval(prompt):
+#     rp = RetrievalPipeline()
+#     print(rp.retrive(str(prompt)))
     
 if __name__ == "__main__":
     DATA_PATH = "/csproject/dan3/data/qvhiglights"
     import argparse
 
-    parser = argparse.ArgumentParser("Test Upload Pipeline")
+    parser = argparse.ArgumentParser("Handling qvhiglight")
+    parser.add_argument("upload", action='store_true')
     parser.add_argument("--source-dir", type=str, default=DATA_PATH)
     parser.add_argument("--moment-table", type=str)
-    parser.add_argument("--vector-table", type=str)
+    parser.add_argument("--frame-table", type=str)
     parser.add_argument("--use-moment-vector", action='store_true')
+    # TODO:
+    # parser.add_argument("--config", type=str)
     args = parser.parse_args()
     
     upload_video_from_dataset(
         file_path=f"{args.source_dir}/highlight_val_release.jsonl", 
         video_dir=f"{args.source_dir}/videos",
         moment_table_name=args.moment_table,
-        vector_table_name=args.vector_table,
+        frame_table_name=args.frame_table,
         use_moment_vector=args.use_moment_vector
     )
     # # test_retrieval("Police in riot gear are marching down the street.")
