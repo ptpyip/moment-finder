@@ -10,6 +10,8 @@ from os import path
 
 from core import UploadPipeline, RetrievalPipeline
 
+from .eval import eval_submission
+
 def load_jsonl(file_path):
     with open(file_path, "rb") as f:
         for line in f.readlines():
@@ -20,6 +22,7 @@ def write_jsonl(dict_list, out_dir, file_name):
         for data in dict_list:
             josn_data = json.dumps(data) + '\n'
             out.write(josn_data)
+           
             
 def upload_video_from_dataset(file_path, video_dir):
     up = UploadPipeline(
@@ -40,35 +43,47 @@ def upload_video_from_dataset(file_path, video_dir):
         up.upload_video_file(video_path)
         # break
 
-def retrieve_video_using_dataset_prompt(file_path, k=5):
+def retrieve_video_using_dataset_prompt(file_path, k=5, skip_not_exisit=True):
     # DATASET_PATH = "/home/ptpyip/fyp/datasets/qvhilights/highlight_val_release.jsonl"
     
     rp = RetrievalPipeline()
 
-    result = []
-    for data in load_jsonl(file_path):        
-        retrieval_result = rp.retrieve_moments(data.get("query"), k=5)
+    gt = []
+    pred = []
+    for data in load_jsonl(file_path): 
+        vid = data.get("vid") 
         
+        retrieval_result = rp.retrieve_moments(data.get("query"), k=5, video_name=vid)
+        if len(retrieval_result) == 0 and skip_not_exisit:
+            # skip video does not exist.
+            continue
+        
+        gt.append(data)
         pred_relevant_windows = []
         for moment_id, video_name, timestamp, cos_dist in retrieval_result:
             pred_vid = rp.get_video_id(video_name)
             print(pred_vid)
-            if pred_vid == data.get("vid"):
+            if pred_vid == vid:
                 pred_relevant_windows.append(
                     [*timestamp, 1 - cos_dist]
                 )
         
                 
         print(f"query: {data.get('qid')} has {len(pred_relevant_windows)} result")
-        result.append({
+        pred.append({
             "qid": data.get("qid"),
             "query": data.get("query"),
             "vid":  data.get("vid"),
             "pred_relevant_windows": pred_relevant_windows            
-        }) 
-          
+        })
+        
+    results = eval_submission(pred, gt) 
+        
+    # write_jsonl(result, "/home/ptpyip/fyp", "preds_metrics")  
     
-    write_jsonl(result, "/home/ptpyip/fyp", "out")  
+    with open("/home/ptpyip/fyp/preds_metrics.json", "w") as f:
+        f.write(json.dumps(results, indent=4))
+
         
     
 def test_retrieval(prompt):
@@ -77,7 +92,7 @@ def test_retrieval(prompt):
     
 if __name__ == "__main__":
     print("hi")
-    DATA_PATH = "/home/ptpyip/fyp/datasets/qvhilights"
+    DATA_PATH = "/home/ptpyip/fyp/datasets/qvhighlights"
     # upload_video_from_dataset(f"{DATA_PATH}/highlight_val_release.jsonl", f"{DATA_PATH}/videos")
     # test_retrieval("Police in riot gear are marching down the street.")
     retrieve_video_using_dataset_prompt(f"{DATA_PATH}/highlight_val_release.jsonl")

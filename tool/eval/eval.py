@@ -74,12 +74,15 @@ def compute_mr_r1(submission, ground_truth, iou_thds=np.linspace(0.5, 0.95, 10))
     # print(submission[0])
     
     iou_thds = [float(f"{e:.2f}") for e in iou_thds]
-    # pred_qid2window = {}
-    # for d in submission:
-    #     pred_relevant_windows = d["pred_relevant_windows"]
-    #     if len(pred_relevant_windows) == 0:
-    #         pred_qid2window[d["qid"]] == [0, 0]
-    pred_qid2window = {d["qid"]: d["pred_relevant_windows"][0][:2] for d in submission}  # :2 rm scores
+    pred_qid2window = {}
+    for d in submission:
+        pred_relevant_windows = d["pred_relevant_windows"]
+        if len(pred_relevant_windows) == 0:
+            pred_qid2window[d["qid"]] = [0, 0]
+        else:
+            pred_qid2window[d["qid"]] = pred_relevant_windows[0][:2]
+
+    # pred_qid2window = {d["qid"]: d["pred_relevant_windows"][0][:2] for d in submission}  # :2 rm scores
     # gt_qid2window = {d["qid"]: d["relevant_windows"][0] for d in ground_truth}
     gt_qid2window = {}
     for d in ground_truth:
@@ -110,8 +113,14 @@ def compute_mr_rk(submission, ground_truth, iou_thds=np.linspace(0.5, 0.95, 10),
         return compute_mr_r1(submission, ground_truth, iou_thds)
     
     iou_thds = [float(f"{e:.2f}") for e in iou_thds]
+    pred_qid2windows = {}
+    for d in submission:
+        if len(d["pred_relevant_windows"]) == 0:
+            pred_qid2windows[d["qid"]] = [[0, 0]]
+        else:
+            pred_qid2windows[d["qid"]] = list(map(lambda window: window[:2], d["pred_relevant_windows"]))
 
-    pred_qid2windows = {d["qid"]: list(map(lambda window: window[:2], d["pred_relevant_windows"])) for d in submission}  # :2 rm scores
+    # pred_qid2windows = {d["qid"]: list(map(lambda window: window[:2], d["pred_relevant_windows"])) for d in submission}  # :2 rm scores
     # gt_qid2window = {d["qid"]: d["relevant_windows"][0] for d in ground_truth}
     gt_qid2window = {}
     pred_qid2window = {}
