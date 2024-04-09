@@ -2,7 +2,8 @@ import os
 from typing import Any, Union, List
 
 import torch
-from clip.simple_tokenizer import SimpleTokenizer as Tokenizer
+# from clip.simple_tokenizer import SimpleTokenizer as Tokenizer
+from clip import tokenize       # using CLIP tokenize function
 from clip.clip import _transform
 
 # from .model import build_model

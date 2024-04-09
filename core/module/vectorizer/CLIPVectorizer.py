@@ -10,24 +10,29 @@ from .base import BaseVectorizer
 from . import clip4clip 
 
 class CLIPVectorizer(BaseVectorizer): 
-    def __init__(self, model_name="ViT-B/32") -> None:
+    use_origanl_clip = True
+    def __init__(self, model_name="ViT-B/32", model_path=None) -> None:
         self.model_name = model_name
+        self.model_path = model_path
         
         super().__init__()
     
     def load_model(self, *args):
         if len(self.model_name.split('-')) == 3:
             """use CLIP4Clip's clip model"""
+            use_origanl_clip = False
+            assert self.model_path is not None
+            
             clip4clip_model, self.transform = clip4clip.load(
-                path=os.path.join(clip4clip.GPU_CKPTS_DIR, clip4clip.MODELS[self.model_name]),
+                path=self.model_path,
                 model_name=self.model_name,
-                device="cuda"
+                device=self.device
             )
             
             self.model = clip4clip_model.clip
-            return
-
-        self.model, self.transform = clip.load(self.model_name, device=self.device)
+        else:
+            self.model, self.transform = clip.load(self.model_name, device=self.device)
+            
         return
         
     def vectorize_txt(self, txt:str):
@@ -37,16 +42,6 @@ class CLIPVectorizer(BaseVectorizer):
         
         return text_features
     
-    def vectorize_img(self, img_raw: Image):
-        # img_raw = Image.open(img_path)
-        img =  self.transform(img_raw) 
-        
-        with torch.no_grad():
-            img_features =  self.model.encode_image(img.to(self.device))
-            img_features /= img_features.norm(dim=-1, keepdim=True)
-        
-        return img_features
-    
     def vectorize_frames(self, frames: list[Image.Image]):
         frames_tensor = self.preprocess(frames)
         
@@ -55,6 +50,16 @@ class CLIPVectorizer(BaseVectorizer):
             frame_features /= frame_features.norm(dim=-1, keepdim=True)
         
         return frame_features 
+    
+    # def vectorize_img(self, img_raw: Image):
+    #     # img_raw = Image.open(img_path)
+    #     img =  self.transform(img_raw) 
+        
+    #     with torch.no_grad():
+    #         img_features =  self.model.encode_image(img.to(self.device))
+    #         img_features /= img_features.norm(dim=-1, keepdim=True)
+        
+    #     return img_features
 
     def preprocess(self, frames):
         return torch.stack([

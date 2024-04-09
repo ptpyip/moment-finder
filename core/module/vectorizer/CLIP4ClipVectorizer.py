@@ -20,7 +20,7 @@ class CLIP4ClipVectorizer(BaseVectorizer):
     ) -> None:
         self.model_path = model_path
         self.model_name = model_name
-        super().__init__()
+        super().__init__()      # set device + call load_model() 
     
     def load_model(self, *args):
         self.model, self.transform = clip4clip.load(
@@ -35,7 +35,6 @@ class CLIP4ClipVectorizer(BaseVectorizer):
         return text_features
     
     def vectorize_moment(self, moment: List[Image]):
-        # img_raw = Image.open(img_path)
         moment_tensor, moment_mask = self.preprocess([moment]) 
         
         with torch.no_grad():
