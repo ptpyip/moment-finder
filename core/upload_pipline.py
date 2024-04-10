@@ -80,7 +80,7 @@ class UploadPipeline():
             
             ### insert moment
             res = self.db.insert(self.moment_table_name, {
-                "name": splited_path.rsplit("/", 1)[0].rsplit(".", 1)[0],       # output_dir/$VIDEO_NAME-Scene-$SCENE_NUMBER.mp4 -> $VIDEO_NAME-Scene-$SCENE_NUMBER
+                "name": segment_path.rsplit("/", 1)[0].rsplit(".", 1)[0],       # output_dir/$VIDEO_NAME-Scene-$SCENE_NUMBER.mp4 -> $VIDEO_NAME-Scene-$SCENE_NUMBER
                 "timestamp": list(timestamp),
                 "vector": moment_vector.tolist() if self.use_moment_vector else None      # type: ignore
             })

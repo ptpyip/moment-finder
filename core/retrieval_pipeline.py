@@ -6,7 +6,7 @@ from .module.segmenter import ShotDetectSegmenter
 
 class RetrievalPipeline:
     def __init__(self,
-        moment_table, frame_table,
+        # moment_table, frame_table,
         clip_name="ViT-B/32",
         clip4clip_name="meanP-ViT-B/16",
         clip4clip_path="/csproject/dan3/downloads/ckpts/meanP-ViT-B-16.bin.3",
