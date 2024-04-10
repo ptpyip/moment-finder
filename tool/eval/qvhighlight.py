@@ -50,7 +50,7 @@ def upload_video_from_dataset(
         up.upload_video_file(video_path)
         # break
 
-def retrieve_video_using_dataset_prompt(file_path, k=5, skip_not_exisit=True):
+def retrieve_video_using_dataset_prompt(file_path, k=5, skip_not_exisit=True, use_moment_vector=False):
     # DATASET_PATH = "/home/ptpyip/fyp/datasets/qvhilights/highlight_val_release.jsonl"
     
     rp = RetrievalPipeline()
@@ -59,8 +59,11 @@ def retrieve_video_using_dataset_prompt(file_path, k=5, skip_not_exisit=True):
     pred = []
     for data in load_jsonl(file_path): 
         vid = data.get("vid") 
-        
-        retrieval_result = rp.retrieve_moments(data.get("query"), k=5, video_name=vid)
+        if use_moment_vector:
+            retrieval_result = rp.retrieve_moments_v2(data.get("query"), k=5, video_name=vid) 
+        else:
+            retrieval_result = rp.retrieve_moments(data.get("query"), k=5, video_name=vid)
+            
         if len(retrieval_result) == 0 and skip_not_exisit:
             # skip video does not exist.
             continue
@@ -114,16 +117,18 @@ if __name__ == "__main__":
     # TODO:
     # parser.add_argument("--config", type=str)
     args = parser.parse_args()
-    
-    upload_video_from_dataset(
-        file_path=f"{args.source_dir}/highlight_val_release.jsonl", 
-        video_dir=f"{args.source_dir}/videos",
-        moment_table_name=args.moment_table,
-        frame_table_name=args.frame_table,
-        use_moment_vector=args.use_moment_vector
-    )
+    if args.upload:
+        
+        upload_video_from_dataset(
+            file_path=f"{args.source_dir}/highlight_val_release.jsonl", 
+            video_dir=f"{args.source_dir}/videos",
+            moment_table_name=args.moment_table,
+            frame_table_name=args.frame_table,
+            use_moment_vector=args.use_moment_vector
+        )
+    else:
     # # test_retrieval("Police in riot gear are marching down the street.")
-    # retrieve_video_using_dataset_prompt(f"{DATA_PATH}/highlight_val_release.jsonl")
+        retrieve_video_using_dataset_prompt(f"{args.source_dir}/highlight_val_release.jsonl", use_moment_vector=args.use_moment_vector)
         
     print("success")
     
