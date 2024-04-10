@@ -3,6 +3,7 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import DatabaseError
 
 def get_pg_db_url(server_url, port_num, db_name, user_name, pwd):
     return f"postgresql://{user_name}:{pwd}@{server_url}:{port_num}/{db_name}" 
@@ -20,6 +21,23 @@ class PgvectorDB:
         self.PG_DB_CONNECTION = get_pg_db_url(server_url, port_num, db_name, user_name, pwd)
         self.engine = create_engine(self.PG_DB_CONNECTION)
         self.Session = sessionmaker(self.engine)
+        
+        assert self.test_connection_success()
+    
+
+    def fetch_moments_by_vector_v2(self, moment_table_name: str, input_vector, video_name=None, k=5):
+        ## validate table_name
+        
+        with self.Session() as session:
+            return session.execute(text(f"""
+                SET LOCAL hnsw.ef_search = 100;
+                SELECT id, name, timestamp,
+                    vector <=> '{input_vector.squeeze().tolist()}' AS distance         
+                FROM {moment_table_name}
+                {f'WHERE name LIKE {video_name}' if video_name is not None else ''}
+                ORDER BY distance limit {k}
+            """)).fetchall()
+
         
     # def set_VMR_table(self, moment_table_name, )
 
@@ -118,3 +136,12 @@ class PgvectorDB:
                 SELECT *
                 FROM items 
             """)).fetchall()
+            
+    def test_connection_success(self):
+        try:
+            self.test_connection()
+            return True
+        except DatabaseError:
+            return False
+            
+    
