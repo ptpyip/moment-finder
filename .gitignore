@@ -162,4 +162,7 @@ cython_debug/
 # Jupyter notebook
 *.ipynb
 
+# media files
+*.mp4
+
 .DS_Store
