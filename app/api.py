@@ -112,4 +112,5 @@ async def retreive_moments_with_name(video_name: str, query: str, k=5):
     
 
 if __name__ == "__main__":
+    ## to run ise the following cmd: python -m app.api
     uvicorn.run(app, host="0.0.0.0", port=8000)
