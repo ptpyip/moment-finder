@@ -27,7 +27,7 @@ class CLIP4ClipVectorizer(BaseVectorizer):
             self.model_path, self.model_name, self.device
         )
         
-    def vectorize_txt(self, txt:str):
+    def vectorize_txt(self, txt:str) -> torch.Tensor:
         with torch.no_grad():
             text_features = self.model.encode_text(clip4clip.tokenize(txt).to(self.device))
             text_features /= text_features.norm(dim=-1, keepdim=True)

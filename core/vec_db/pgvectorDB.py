@@ -23,6 +23,20 @@ class PgvectorDB:
         self.Session = sessionmaker(self.engine)
         
         assert self.test_connection_success()
+    
+
+    def fetch_moments_by_vector_v2(self, moment_table_name: str, input_vector, video_name=None, k=5):
+        ## validate table_name
+        
+        with self.Session() as session:
+            return session.execute(text(f"""
+                SET LOCAL hnsw.ef_search = 100;
+                SELECT id, name, timestamp,
+                    vector <=> '{input_vector.squeeze().tolist()}' AS distance         
+                FROM {moment_table_name}
+                {f'WHERE name LIKE {video_name}' if video_name is not None else ''}
+                ORDER BY distance limit {k}
+            """)).fetchall()
 
         
     # def set_VMR_table(self, moment_table_name, )

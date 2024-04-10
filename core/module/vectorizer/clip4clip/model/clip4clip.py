@@ -116,7 +116,7 @@ class CLIP4Clip(PreTrainedClip):
 
         return loss
 
-    def forward_text(self, text):
+    def forward_text(self, text) -> torch.Tensor:
         bs = text.size(0)           # [batch_size, n_ctx, dim]
         
         text_feature = self.clip.encode_text(text).float()
