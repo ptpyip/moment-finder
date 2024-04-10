@@ -68,7 +68,48 @@ async def retreive_moments(query: str, k=5):
     return JSONResponse({
         "results": results
     })
+
+
+@app.get("/moments/{video_name}")
+async def retreive_moments_with_name(video_name: str, query: str, k=5):
+    ## TODO: add video validate logic
+    retrieval_result = rp.retrieve_moments(query, k, video_name)
+    
+    results = []
+    for moment_id, video_name, timestamp, cos_dist in retrieval_result:
+        vid = rp.get_video_id(video_name)
         
+        results.append({
+            "query": query,
+            "vid":  vid,      
+            "timestamp": timestamp,
+            "sim_score": 1 - cos_dist 
+        }) 
+        
+    return JSONResponse({
+        "results": results
+    })
+
+# @app.get("/frames/")
+# async def retreive_moments(query: str, k=5):
+#     retrieval_result = rp.retrieve_moments(query, k)
+    
+#     results = []
+#     for moment_id, video_name, timestamp, cos_dist in retrieval_result:
+#         vid = rp.get_video_id(video_name)
+        
+#         results.append({
+#             "query": query,
+#             "vid":  vid,      
+#             "timestamp": timestamp,
+#             "sim_score": 1 - cos_dist 
+#         }) 
+        
+#     return JSONResponse({
+#         "results": results
+#     })
+            
+    
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
