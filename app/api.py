@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request, Header
 from fastapi.responses import StreamingResponse, FileResponse, JSONResponse
 from typing import Optional
 
-from ..core import RetrievalPipeline
+from core import RetrievalPipeline
 
 app = FastAPI()
 dir_path = os.path.dirname(os.path.realpath(__file__))
