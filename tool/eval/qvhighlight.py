@@ -9,20 +9,9 @@ from io import BytesIO
 from os import path
 
 from core import UploadPipeline, RetrievalPipeline
+from tool.utils import load_jsonl, write_jsonl
 
 from .eval import eval_submission
-
-def load_jsonl(file_path):
-    with open(file_path, "rb") as f:
-        for line in f.readlines():
-            yield json.loads(line)
-            
-def write_jsonl(dict_list, out_dir, file_name):
-     with open(path.join(out_dir, f"{file_name}.jsonl"), 'w') as out:
-        for data in dict_list:
-            josn_data = json.dumps(data) + '\n'
-            out.write(josn_data)
-           
             
 def upload_video_from_dataset(file_path, video_dir):
     up = UploadPipeline(
