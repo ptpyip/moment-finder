@@ -8,30 +8,35 @@ export default function BotMessage({ fetchMessage: fetchResult }) {
   const result_p = {
     "message": "...",
     "videos": [
-      // scene 1
-      {
-        "name": "Video 1",
-        "url": "https://www.youtube.com/watch?v=CT4N_v0dcbc",
-        "scenes" : [{
-          "timestamp": 0,
-          "thumbnail": ""
-        }]
-      },
+      // // scene 1
+      // {
+      //   "name": "Video 1",
+      //   "url": "https://www.youtube.com/watch?v=CT4N_v0dcbc",
+      //   "scenes" : [{
+      //     "timestamp": 0,
+      //     "thumbnail": ""
+      //   }]
+      // },
       // scene 2
-      {
-        "name": "Video 2",
-        "url": "https://www.youtube.com/watch?v=CT4N_v0dcbc",
-        "scenes" : [{
-          "timestamp": 0,
-          "thumbnail": ""
-        }]
-      }
+      // {
+      //   "name": "Video 2",
+      //   "url": "https://www.youtube.com/watch?v=CT4N_v0dcbc",
+      //   "scenes" : [{
+      //     "timestamp": 0,
+      //     "thumbnail": ""
+      //   }]
+      // }
     ]
   }
+  let video_refs = useRef([])
   const [result, setResult] = useState(result_p);
+  if (result != undefined) {
+    if (result.videos.length > 0) {
+      video_refs.current = result.videos.map(()=>React.createRef());
+    }
+  }
 
   // reference to the content container for reference to the video player
-  const video_refs = useRef(result.videos.map(()=>React.createRef()));
 
   useEffect(() => {
     async function loadMessage() {
@@ -73,10 +78,11 @@ export default function BotMessage({ fetchMessage: fetchResult }) {
                 <div className="horizontal-scroll-container container">
                   {
                     video.scenes.map((scene,scene_index) => {
+                      let time = scene.timestamp
                       return (
                         <div className="scene-container container">
                           <div className="scene-description-container container">
-                            Go to timestamp {scene.timestamp}
+                            Go to timestamp {time}
                           </div>
                           <div className="thumbnail-container container" onClick={()=> {
                             // TODO: get the reference of the react player of the current video
@@ -89,7 +95,7 @@ export default function BotMessage({ fetchMessage: fetchResult }) {
                             
                             const player_ref = video_refs.current[video_index];
                             const player = player_ref.current;
-                            player.seekTo(scene.timestamp,'seconds');
+                            player.seekTo(time,'seconds');
                             // player.playing = true;
                           }}>
                             <div className="image-container container">

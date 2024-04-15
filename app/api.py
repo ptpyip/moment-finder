@@ -7,18 +7,42 @@ from typing import Optional
 
 from core import RetrievalPipeline
 
+# Settings related to Cross-Origin resource sharing
+from fastapi.middleware.cors import CORSMiddleware
+
+
 app = FastAPI()
+
+# Settings related to Cross-Origin resource sharing
+origins = [
+    "*",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    # allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
-dir_path = "/data/api/videos"
+# dir_path = "/data/api/videos"
+dir_path = "/data/qvhighlights/videos"
+
 print(dir_path)
 
 rp = RetrievalPipeline()
 
 CONTENT_CHUNK_SIZE=100*1024
+
+@app.get("/hello")
+async def hello():
+    return {"message": "Hello world"}
+
 @app.get("/stream/{name}")
 async def stream(name:str,range: Optional[str] = Header(None)):
     def get_file(name:str):
-        filename = os.path.join(dir_path,"streamFiles", name)
+        filename = os.path.join(dir_path, name)
         f = open(filename,'rb')
         return f, os.path.getsize(filename)
     
