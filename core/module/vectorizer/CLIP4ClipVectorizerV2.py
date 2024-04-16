@@ -42,7 +42,10 @@ class CLIP4ClipVectorizerV2(BaseVectorizer):
     def vectorize_txt(self, txt:str) -> torch.Tensor:
         with torch.no_grad():
             inputs = self.tokenize(txt)
-            outputs = self.txt_model(input_ids=inputs["input_ids"], attention_mask=inputs["attention_mask"])
+            outputs = self.txt_model(
+                input_ids=inputs["input_ids"].to(self.device), 
+                attention_mask=inputs["attention_mask"].to(self.device)
+            )
 
             # Normalize embeddings for retrieval:
             text_features = outputs[0] / outputs[0].norm(dim=-1, keepdim=True)
@@ -54,7 +57,7 @@ class CLIP4ClipVectorizerV2(BaseVectorizer):
         moment_tensor = self.preprocess(moment) 
         
         with torch.no_grad():
-            visual_output = self.vis_model(moment_tensor)
+            visual_output = self.vis_model(moment_tensor.to(self.device))
 
             # Normalizing the embeddings and calculating mean between all embeddings. 
             visual_output = visual_output["image_embeds"]
