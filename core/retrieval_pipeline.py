@@ -22,18 +22,24 @@ class RetrievalPipeline:
             query_vec
             )                        # [(id, dist)]
 
-    def retrieve_moments(self, prompt: str, k=5) -> dict:
+    def retrieve_moments(self, prompt: str, k=5, video_name=None) -> dict:
         """ return [moment_id, video_name,  timestamp, cos_dist)] """
         query_vec = self.vectorizer.vectorize_txt(prompt)
+        if video_name is None:
+            moments = self.db.fetch_moments_by_vector(
+                vector_table_name="qvhiglight_clip_moment_vector_0209",
+                moment_table_name="qvhiglight_clip_moment_0209",
+                input_vector=query_vec
+            )       # 
+        else:
+            moments = self.db.fetch_moments_by_vector_and_name(
+                vector_table_name="qvhiglight_clip_moment_vector_0209",
+                moment_table_name="qvhiglight_clip_moment_0209",
+                input_vector=query_vec,
+                video_name=video_name
+            )       # 
 
-        # retrieve k moments
-        moments = self.db.fetch_moments_by_vector(
-            vector_table_name="qvhiglight_clip_moment_vector_0209",
-            moment_table_name="qvhiglight_clip_moment_0209",
-            input_vector=query_vec,
-            k=k
-        )      
-        
+
         return moments
     
     def retrieve_moments_by_video_id(self, video_id: str, prompt: str, k=5) -> dict:

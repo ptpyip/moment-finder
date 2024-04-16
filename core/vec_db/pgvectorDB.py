@@ -73,7 +73,35 @@ class PgvectorDB:
                         ORDER BY min(distance) limit {k} 
                     ) AS result_table 
                     ON result_table.moment_id = moment_table.id 
-            """)).fetchall()            
+            """)).fetchall()
+
+    def fetch_moments_by_vector_and_name(self, vector_table_name:str, moment_table_name: str, input_vector, video_name, k=5):
+        ## validate table_name
+
+        with self.Session() as session:
+
+            return session.execute(text(f"""
+                SET LOCAL hnsw.ef_search = 100;
+                SELECT id, name, timestamp, min_distance
+                FROM {moment_table_name} AS moment_table
+                    JOIN (
+                        SELECT moment_id, min(distance) AS min_distance
+                        FROM (
+                            SELECT moment_id,
+                                vector <=> '{input_vector.squeeze().tolist()}' AS distance         
+                            FROM {vector_table_name}
+                            WHERE moment_id IN (
+                                SELECT id
+                                FROM qvhiglight_clip_moment_0209 AS moment_table
+                                WHERE name LIKE '{video_name}%'
+                            ) 
+                            ORDER BY distance limit 100
+                        ) AS vector_table
+                        GROUP BY moment_id       
+                        ORDER BY min(distance) limit 5 
+                    ) AS result_table 
+                    ON result_table.moment_id = moment_table.id 
+            """)).fetchall()    
         
     def fetch_features_by_vector(self, feature_table_name:str, input_vector, k=5, return_frame=False):
         ## validate table_name
