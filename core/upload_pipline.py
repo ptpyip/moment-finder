@@ -18,8 +18,8 @@ class UploadPipeline():
     MOMENT_OUT_DIR = "/homes/ptpyip/dev/tmp/proposal"
     
     def __init__(self, 
-        moment_table_name, 
-        frame_table_name,
+        moment_table, 
+        frame_table,
         clip_name="ViT-B/32",
         clip4clip_name="meanP-ViT-B/16",
         clip4clip_path="/csproject/dan3/downloads/ckpts/meanP-ViT-B-16.bin.3",
@@ -28,8 +28,8 @@ class UploadPipeline():
         if not os.path.exists(self.MOMENT_OUT_DIR):
             os.mkdir(self.MOMENT_OUT_DIR)
             
-        self.moment_table_name = moment_table_name
-        self.frame_table_name = frame_table_name
+        self.moment_table = moment_table
+        self.frame_table = frame_table
         self.use_moment_vector = use_moment_vector
         self.store_frame = store_frame 
         
@@ -80,7 +80,7 @@ class UploadPipeline():
                 pass
             
             ### insert moment
-            res = self.db.insert(self.moment_table_name, {
+            res = self.db.insert(self.moment_table, {
                 "name": segment_path.rsplit("/", 1)[0].rsplit(".", 1)[0],       # output_dir/$VIDEO_NAME-Scene-$SCENE_NUMBER.mp4 -> $VIDEO_NAME-Scene-$SCENE_NUMBER
                 "timestamp": list(timestamp),
                 "vector": moment_vector.tolist() if self.use_moment_vector else None      # type: ignore
@@ -93,7 +93,7 @@ class UploadPipeline():
                 else:
                     frame = None
                     
-                res = self.db.insert(self.frame_table_name, {
+                res = self.db.insert(self.frame_table, {
                         "moment_id": moment_id,
                         "frame_base64": frame,           # need to turn byte to str, as JSON only accept str
                         "vector": vector.tolist(),                              # jsn only support list
@@ -133,7 +133,7 @@ class UploadPipeline():
     #     moment_datas = self.vectorize_moments()
         
     #     for moment, timestamp in zip(moment_datas, timestamp_list): 
-    #         moment_id, count = (self.db.supabase_client.table(self.moment_table_name)
+    #         moment_id, count = (self.db.supabase_client.table(self.moment_table)
     #                 .select("id")
     #                 .eq("name", moment.get("name",""))
     #                 .excute()
@@ -142,7 +142,7 @@ class UploadPipeline():
     #         if count == 0:
     #             if insert_non_existed_moment:
     #                 moment_id = self.db.insert(
-    #                     table_name=self.moment_table_name,
+    #                     table=self.moment_table,
     #                     data={
     #                         "name": moment.get("name",""),
     #                         "timestamp": list(timestamp)
@@ -154,7 +154,7 @@ class UploadPipeline():
                 
     #         temporal_vector = moment["vector"]
     #         res = self.db.update_by_id(
-    #                 self.moment_table_name, 
+    #                 self.moment_table, 
     #                 moment_id,
     #                 data = {
     #                     "vector": temporal_vector.tolist(),                     # json only support list
