@@ -127,13 +127,13 @@ if __name__ == "__main__":
         video_dir=f"{args.source_dir}/videos",
     )
     if args.upload:
-        print(f"Uploading moments to {args.moment_table} and frames to {args.fram_table}.")
+        print(f"Uploading moments to {args.moment_table} and frames to {args.frame_table}.")
         num_uploaded_video = dataset.upload(
             moment_table_name=args.moment_table,
             frame_table_name=args.frame_table,
             use_moment_vector=args.use_moment_vector
         )
-        print(f"Uploaded {num_uploaded_video} videos to {args.moment_table} and {args.fram_table}")        
+        print(f"Uploaded {num_uploaded_video} videos to {args.moment_table} and {args.frame_table}")        
          
     else:
     # # test_retrieval("Police in riot gear are marching down the street.")
