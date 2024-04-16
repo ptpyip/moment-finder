@@ -1,7 +1,7 @@
 from typing import List
 
 from .vec_db import PgvectorDB
-from .module.vectorizer import CLIPVectorizer, CLIP4ClipVectorizer
+from .module.vectorizer import CLIPVectorizer, CLIP4ClipVectorizer, CLIP4ClipVectorizerV2
 from .module.segmenter import ShotDetectSegmenter
 
 class RetrievalPipeline:
@@ -16,9 +16,11 @@ class RetrievalPipeline:
         
         self.vec_db = PgvectorDB(serverl_url)
         self.txt2frame_vectorizer = CLIPVectorizer(clip_name)
-        self.txt2moment_vectorier = CLIP4ClipVectorizer(
-           clip4clip_name, clip4clip_path
-        ) if use_moment_vector else None
+
+        self.txt2moment_vectorier = CLIP4ClipVectorizerV2() if use_moment_vector else None
+        # self.txt2moment_vectorier = CLIP4ClipVectorizer(
+        #    clip4clip_name, clip4clip_path
+        # ) if use_moment_vector else None
                  # [(id, dist)]
 
     def retrieve_moments(self, prompt: str, k=5, video_name=None) -> dict:
