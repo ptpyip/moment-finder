@@ -117,7 +117,9 @@ if __name__ == "__main__":
     parser.add_argument("--source-dir", type=str)
     parser.add_argument("--moment-table", type=str)
     parser.add_argument("--frame-table", type=str)
+    parser.add_argument("--output", type=str, default="")
     parser.add_argument("--use-moment-vector", action='store_true')
+    
     # TODO:
     # parser.add_argument("--config", type=str)
     args = parser.parse_args()
@@ -136,6 +138,17 @@ if __name__ == "__main__":
         print(f"Uploaded {num_uploaded_video} videos to {args.moment_table} and {args.frame_table}")        
          
     else:
+        gt, pred = dataset.retrieveV2(
+            moment_table=args.moment_table   
+        )
+        results = eval_submission(pred, gt) 
+        
+        if args.output == "":
+            args.output = f"{args.moment_table}_metrics"
+        with open(f"./{args.output}.json", "w") as f:
+            f.write(json.dumps(results, indent=4))
+        
+        
     # # test_retrieval("Police in riot gear are marching down the street.")
         # retrieve_video_using_dataset_prompt(f"{args.source_dir}/highlight_val_release.jsonl", use_moment_vector=args.use_moment_vector)
         

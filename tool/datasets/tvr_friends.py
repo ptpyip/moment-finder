@@ -9,24 +9,27 @@ import pandas as pd
 
 from io import BytesIO
 from os import path
+import os
 
 from core import UploadPipeline, RetrievalPipeline
 from tool.utils import load_jsonl, write_jsonl
 
 class TVRFriendsDataset():
-    def __init__(self, file_path, frame_dir) -> None:
+    def __init__(self, data_dir, frames_dir) -> None:
         """each clip is a moment"""
-        data = load_jsonl(file_path)
+        # data = load_jsonl(file_path)
         
-        self.data_df = pd.DataFrame(data)
-        self.frames_dir = frames_dir
+        # self.data_df = pd.DataFrame(data)
+        self.frames_dir = f"{data_dir}/frames"
+        self.moment_names = os.listdir(self.frames_dir)
         # self.moment_names = 
         
     def upload(self, moment_table, frame_table):
         up = UploadPipeline(moment_table, frame_table)
 
         uploaded_video = len(self.data_df)
-        for vid in self.data_df.get("vid"):
+        for moment_name in self.moment_names:
+            
             video_path = path.join(self.video_dir, f"{vid}.mp4")        # aware of .avi
             
             if not path.exists(video_path):

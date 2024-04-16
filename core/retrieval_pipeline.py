@@ -17,10 +17,10 @@ class RetrievalPipeline:
         self.vec_db = PgvectorDB(serverl_url)
         self.txt2frame_vectorizer = CLIPVectorizer(clip_name)
 
-        self.txt2moment_vectorier = CLIP4ClipVectorizerV2() if use_moment_vector else None
-        # self.txt2moment_vectorier = CLIP4ClipVectorizer(
-        #    clip4clip_name, clip4clip_path
-        # ) if use_moment_vector else None
+        # self.txt2moment_vectorier = CLIP4ClipVectorizerV2() if use_moment_vector else None
+        self.txt2moment_vectorier = CLIP4ClipVectorizer(
+           clip4clip_name, clip4clip_path
+        ) if use_moment_vector else None
                  # [(id, dist)]
 
     def retrieve_moments(self, prompt: str, k=5, video_name=None) -> dict:
@@ -48,12 +48,12 @@ class RetrievalPipeline:
         return ShotDetectSegmenter.parse_video_name(video_name)
     
 
-    def retrieve_moments_v2(self, moment_table_name, prompt: str, video_name=None, k=5):
+    def retrieve_moments_v2(self, moment_table, prompt: str, video_name=None, k=5):
         """ return [moment_id, video_name,  timestamp, cos_dist)] """
         query_vec = self.txt2moment_vectorier.vectorize_txt(prompt)
         
         moments = self.vec_db.fetch_moments_by_vector_v2(
-            moment_table_name=moment_table_name,
+            moment_table_name=moment_table,
             input_vector=query_vec,
             video_name=video_name
         )        

@@ -34,6 +34,42 @@ class QVHighlightsDataset():
                 up.upload_video_file(video_path) 
                 
         return num_uploaded_video
+
+    def retrieveV2(self, moment_table, k=5, verbose=False, skip_not_found=True):
+        rp = RetrievalPipeline()
+        
+        gt = []
+        pred = []
+        for data in self.data_df: 
+            vid = data.get("vid") 
+            retrieval_result = rp.retrieve_moments_v2(moment_table, data.get("query"), vid, k) 
+            
+            if len(retrieval_result) != 0 :
+                pred_relevant_windows = []
+                for moment_id, video_name, timestamp, cos_dist in retrieval_result:
+                    pred_vid = rp.get_video_id(video_name)
+                    
+                    if pred_vid == vid:
+                        pred_relevant_windows.append(
+                            [*timestamp, 1 - cos_dist]
+                        )
+                if verbose:                
+                    print(f"query: {data.get('qid')} has {len(pred_relevant_windows)} result")
+            else:
+                if skip_not_found: 
+                    continue
+                pred_relevant_windows = [0, 0]   
+
+            gt.append(data)
+            pred.append({
+                "qid": data.get("qid"),
+                "query": data.get("query"),
+                "vid":  data.get("vid"),
+                "pred_relevant_windows": pred_relevant_windows            
+            })
+        
+        return gt, pred
+        
     
     def retrieve(self, skip_not_exisit=True, vid_is_given=False, verbose=False):
         rp = RetrievalPipeline()
