@@ -19,21 +19,21 @@ class QVHighlightsDataset():
         self.data_df = pd.DataFrame(data)
         self.video_dir = video_dir
         
-    def upload(self, moment_table, frame_table):
-        up = UploadPipeline(moment_table, frame_table)
+    def upload(self, moment_table, frame_table, use_moment_vector):
+        up = UploadPipeline(moment_table, frame_table, use_moment_vector, store_frame=False)
 
-        uploaded_video = len(self.data_df)
+        num_uploaded_video = len(self.data_df)
         for vid in self.data_df.get("vid"):
             video_path = path.join(self.video_dir, f"{vid}.mp4")        # aware of .avi
             
             if not path.exists(video_path):
-                uploaded_video -= 1
+                num_uploaded_video -= 1
                 print(f"video does not exixt: {video_path}")
                 continue
             else:
                 up.upload_video_file(video_path) 
                 
-        return uploaded_video
+        return num_uploaded_video
     
     def retrieve(self, skip_not_exisit=True, vid_is_given=False, verbose=False):
         rp = RetrievalPipeline()

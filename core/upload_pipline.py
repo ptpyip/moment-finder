@@ -5,7 +5,7 @@ from .vec_db import SupabaseDB
 from .utils import video_processing
 from .utils import VideoExtractor
 from .module.segmenter import ShotDetectSegmenter
-from .module.vectorizer import CLIPVectorizer, CLIP4ClipVectorizer
+from .module.vectorizer import CLIPVectorizer, CLIP4ClipVectorizer, CLIP4ClipVectorizerV2
 
 def clean_dir(dir):
     for filename in os.listdir(dir):
@@ -43,10 +43,11 @@ class UploadPipeline():
             """ use clip4clip's clip"""
             clip_path = clip4clip_path
         self.frame_vectorizer = CLIPVectorizer(clip_name, clip_path)
-        self.moment_vectorizer = CLIP4ClipVectorizer(
-           clip4clip_name, clip4clip_path
-        ) if use_moment_vector else None
-        
+        self.moment_vectorizer = CLIP4ClipVectorizerV2() if use_moment_vector else None
+        # self.moment_vectorizer = CLIP4ClipVectorizer(
+        #    clip4clip_name, clip4clip_path
+        # ) if use_moment_vector else None
+               
         return    
     
     
