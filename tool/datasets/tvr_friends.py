@@ -20,7 +20,7 @@ class TVRFriendsDataset():
         
         self.data_df = pd.DataFrame(data)
         self.frames_dir = frames_dir
-        self.moment_names = 
+        # self.moment_names = 
         
     def upload(self, moment_table, frame_table):
         up = UploadPipeline(moment_table, frame_table)

@@ -113,7 +113,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser("Handling qvhiglight")
-    parser.add_argument("upload", action='store_true')
+    parser.add_argument("--upload", action='store_true')
     parser.add_argument("--source-dir", type=str)
     parser.add_argument("--moment-table", type=str)
     parser.add_argument("--frame-table", type=str)
