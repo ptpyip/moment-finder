@@ -29,8 +29,10 @@ class CLIP4ClipVectorizerV2(BaseVectorizer):
     def load_model(self, *args):
         self.txt_model = CLIPTextModelWithProjection.from_pretrained(self.model_name)
         self.txt_model.eval()
+        self.txt_model.to(self.device)
         self.vis_model = CLIPVisionModelWithProjection.from_pretrained(self.model_name)
         self.vis_model.eval()
+        self.vis_model.to(self.device)
         
         tokenizer = CLIPTokenizer.from_pretrained(self.model_name)
         self.tokenize = lambda txt: tokenizer(text=txt , return_tensors="pt")
@@ -65,7 +67,7 @@ class CLIP4ClipVectorizerV2(BaseVectorizer):
     def preprocess(self, moment: List[Image]):
     
         L = 77
-        H, W = self.input_reoulution
+        H = W = self.input_reoulution
         moment_tensor = torch.zeros(L, 3, H, W)
         
         moment_length = len(moment)
