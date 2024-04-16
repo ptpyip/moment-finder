@@ -20,7 +20,7 @@ class QVHighlightsDataset():
         self.video_dir = video_dir
         
     def upload(self, moment_table, frame_table, use_moment_vector):
-        up = UploadPipeline(moment_table, frame_table, use_moment_vector, store_frame=False)
+        up = UploadPipeline(moment_table, frame_table, use_moment_vector=use_moment_vector, store_frame=False)
 
         num_uploaded_video = len(self.data_df)
         for vid in self.data_df.get("vid"):
