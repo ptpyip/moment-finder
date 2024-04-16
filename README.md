@@ -1,7 +1,7 @@
 # Moment Finder
 
 > Retrieve moments from videos using natural language query
->
+
 
 ## Requirments
 ```bash
