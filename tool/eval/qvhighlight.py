@@ -15,6 +15,7 @@ from .metric import eval_submission
 
 
 
+
 def upload_dataset(dataset):
     pass
 
@@ -23,19 +24,19 @@ def eval_retrieval(dataset):
 
 
             
-def upload_video_from_dataset(
-        file_path, video_dir,
-        moment_table_name="qvhiglight_clip_moment_0209",
-        frame_table_name="qvhiglight_clip_moment_vector_0209",
-        use_moment_vector=False, store_frame=True
-    ):
-    up = UploadPipeline(
-        moment_table_name, 
-        frame_table_name,
-        use_moment_vector=use_moment_vector, 
-        store_frame=store_frame
-    )
-    vids = {data["vid"] for data in load_jsonl(file_path)}   # use set to avoid repeat
+# def upload_video_from_dataset(
+#         file_path, video_dir,
+#         moment_table_name="qvhiglight_clip_moment_0209",
+#         frame_table_name="qvhiglight_clip_moment_vector_0209",
+#         use_moment_vector=False, store_frame=True
+#     ):
+#     up = UploadPipeline(
+#         moment_table_name, 
+#         frame_table_name,
+#         use_moment_vector=use_moment_vector, 
+#         store_frame=store_frame
+#     )
+#     vids = {data["vid"] for data in load_jsonl(file_path)}   # use set to avoid repeat
     
 #     for vid in vids:
 #         ## insert each video
@@ -120,19 +121,24 @@ if __name__ == "__main__":
     # TODO:
     # parser.add_argument("--config", type=str)
     args = parser.parse_args()
+    
+    dataset = QVHighlightsDataset(
+        file_path=f"{args.source_dir}/highlight_val_release.jsonl", 
+        video_dir=f"{args.source_dir}/videos",
+    )
     if args.upload:
-        
-        upload_video_from_dataset(
-            file_path=f"{args.source_dir}/highlight_val_release.jsonl", 
-            video_dir=f"{args.source_dir}/videos",
+        print(f"Uploading moments to {args.moment_table} and frames to {args.fram_table}.")
+        num_uploaded_video = dataset.upload(
             moment_table_name=args.moment_table,
             frame_table_name=args.frame_table,
             use_moment_vector=args.use_moment_vector
         )
+        print(f"Uploaded {num_uploaded_video} videos to {args.moment_table} and {args.fram_table}")        
+         
     else:
     # # test_retrieval("Police in riot gear are marching down the street.")
-        retrieve_video_using_dataset_prompt(f"{args.source_dir}/highlight_val_release.jsonl", use_moment_vector=args.use_moment_vector)
+        # retrieve_video_using_dataset_prompt(f"{args.source_dir}/highlight_val_release.jsonl", use_moment_vector=args.use_moment_vector)
         
-    print("success")
+        print("success")
     
     

@@ -48,12 +48,12 @@ class RetrievalPipeline:
         return ShotDetectSegmenter.parse_video_name(video_name)
     
 
-    def retrieve_moments_v2(self, prompt: str, video_name=None, k=5):
+    def retrieve_moments_v2(self, moment_table_name, prompt: str, video_name=None, k=5):
         """ return [moment_id, video_name,  timestamp, cos_dist)] """
         query_vec = self.txt2moment_vectorier.vectorize_txt(prompt)
         
         moments = self.vec_db.fetch_moments_by_vector_v2(
-            moment_table_name="qvhiglight_moment_0209",
+            moment_table_name=moment_table_name,
             input_vector=query_vec,
             video_name=video_name
         )        
