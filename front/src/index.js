@@ -11,9 +11,6 @@ import API from "./ChatbotAPI";
 import "./styles.css";
 import Header from "./components/Header";
 
-// for testing
-import Parent from "./components/Parent";
-
 function Chatbot() {
   const [messages, setMessages] = useState([]);
 
@@ -35,6 +32,7 @@ function Chatbot() {
       <BotMessage
         key={messages.length + 2}
         fetchMessage={async () => await API.GetChatbotResponse(text)}
+        query={text}
       />
     );
     setMessages(newMessages);

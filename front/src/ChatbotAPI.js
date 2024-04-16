@@ -8,10 +8,20 @@ const api_endpoint = protocol + domain_name + api_path;
 const video_path = "/stream/";
 const video_location = protocol + domain_name + video_path;
 
+const welcome_message = "Tell me what you want, I'll give you what you want :|";
+
+const sanitizeHTML = (str) => {
+  return str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+};
+
 const API = {
   GetChatbotResponse: async query => {
+    query = sanitizeHTML(query); // sanitize input
+
     let reply;  // the message for the query
-    const result = {
+
+    // this serves only as a template
+    let result = {
       "message": reply,
       "videos": [
         // video 1
@@ -42,9 +52,11 @@ const API = {
         }
       ]
     }
+    // default result has no videos, only message
+    result.videos = [];
 
     // Scenario when the program just started, no query yet
-    if (query === "hi") result.message = "Welcome to chatbot!";
+    if (query === "hi") result.message = welcome_message;
     else {
       try {
         // here is a query sent to the api endpoint
@@ -62,9 +74,9 @@ const API = {
           //     "sim_score": 1 - cos_dist 
           // }
           let videos = [];
-          // sort the videos according to the scores
+          // sort the scenes according to the scores
           data.results.sort((item1, item2)=>{
-            return item1.sim_score - item2.sim_score;
+            return -(item1.sim_score - item2.sim_score);
           })
           for (let i=0; i<data.results.length; i++) {
             let result = data.results[i];
@@ -72,11 +84,37 @@ const API = {
             const url = video_location +result.vid+".mp4";
             const scenes = [
               {timestamp:parseInt(result.timestamp),
-              thumbnail:base64_data}
+                sim_score:result.sim_score,
+              // thumbnail:base64_data
+              }
             ];
-            videos.push({name:name, url:url, scenes:scenes});
+            // check if the video was present already
+            const exist = videos.find(item => {return item.vid_name == result.vid});
+            if (exist == undefined) {
+              videos.push({name:name, url:url, scenes:scenes, vid_name:result.vid});
+            }
+            else {
+              // when the same video also has targeted scenes
+              exist.scenes.push(
+                {timestamp:parseInt(result.timestamp),
+                  sim_score:result.sim_score
+                }
+              )
+            }
           }
+
+          // just turn each sim_score to display at max 4 decimal places
+          videos.forEach(video => {
+            video.scenes.forEach(scene=> {
+              let str = scene.sim_score.toString();
+              str = str.length > 6 ? str.substring(0,6) : str;
+              scene.sim_score = str;
+            })
+          })
+
           result.videos = videos;
+          const original_query = data.results.length > 0? data.results[0].query : 'undefined';
+          result.message = "Here are "+result.videos.length+" videos with '"+ original_query + "' with total of "+data.results.length+" scenes.";
           // result.message = data.message;
           // result.videos = data.videos;
         }
@@ -85,14 +123,15 @@ const API = {
         }
       }
       catch (error) {
-        console.log(error);
-        print(error);
-        throw(error);
+        // console.log(error);
+        // print(error);
+        // throw(error);
+        result.videos = []
+        result.message = "Sorry wasn't listening, I took too long and forget already, please repeat again.. X_X";
       }
     }
 
     return result
-    resolve(result);
   }
 };
 

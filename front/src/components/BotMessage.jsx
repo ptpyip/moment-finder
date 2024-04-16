@@ -3,7 +3,13 @@ import ReactPlayer from 'react-player'
 
 const url_matcher = /^http.*$/;
 
-export default function BotMessage({ fetchMessage: fetchResult }) {
+const sanitizeHTML = (str) => {
+  return str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+};
+
+export default function BotMessage({ fetchMessage: fetchResult, query }) {
+  query = query != undefined ? sanitizeHTML(query) : "";
+
   const [isLoading, setLoading] = useState(true);
   const result_p = {
     "message": "...",
@@ -55,66 +61,63 @@ export default function BotMessage({ fetchMessage: fetchResult }) {
       {/* Upper section of the text */}
       <div className="text-container container">
         {/* <div className="bot-message"> */}
-          {isLoading ? "..." : result.message}
+          {isLoading ? "Looking for '"+query+"' passionately..." : result.message}
         {/* </div> */}
 
       </div>
 
       {/* The scenes */}
-      <div className="content-container container">
-        {
-          result.videos.map((video,video_index) => {
-            return (
-              <div className="video-container container">
-                <div className="description-container container">
-                  <div className="video-description">
-                    {video.name}
-                  </div>
-                </div>
-                <div className="player-container container">
-                  {/* Use the react player component */}
-                  <ReactPlayer controls playing url={video.url} width='100%' height='100%' ref={video_refs.current[video_index]} />
-                </div>
-                <div className="horizontal-scroll-container container">
-                  {
-                    video.scenes.map((scene,scene_index) => {
-                      let time = scene.timestamp
-                      return (
-                        <div className="scene-container container">
-                          <div className="scene-description-container container">
-                            Go to timestamp {time}
-                          </div>
-                          <div className="thumbnail-container container" onClick={()=> {
-                            // TODO: get the reference of the react player of the current video
-                            // reference to the video container
-                            // const video = theContent.current.children[video_index];
+      { result.videos.length == 0 ? undefined : (
+          <div className="content-container container">
+            {
+              result.videos.map((video,video_index) => {
+                return (
+                  <div className="video-container container">
+                    <div className="description-container container">
+                      <div className="video-description">
+                        {video.name}
+                      </div>
+                    </div>
+                    <div className="player-container container">
+                      {/* Use the react player component */}
+                      <ReactPlayer controls url={video.url} width='100%' height='100%' ref={video_refs.current[video_index]} />
+                    </div>
+                    <div className="horizontal-scroll-container container">
+                      {
+                        video.scenes.map((scene,scene_index) => {
+                          let time = scene.timestamp
+                          return (
+                            <div className="scene-container container">
+                              <div className="scene-description-container container" onClick={()=> {
+                                // TODO: get the reference of the react player of the current video
+                                // reference to the video container
+                                // const video = theContent.current.children[video_index];
 
-                            // reference to ReactPlayer in player-container
-                            // console.log("video_index:"+video_index);
-                            // console.log((player))
-                            
-                            const player_ref = video_refs.current[video_index];
-                            const player = player_ref.current;
-                            player.seekTo(time,'seconds');
-                            // player.playing = true;
-                          }}>
-                            <div className="image-container container">
-                              {/* scene.thumbnail == "data:image/png;base64, {base64_string}" */}
-                              <img src={scene.thumbnail} alt="" />
+                                // reference to ReactPlayer in player-container
+                                // console.log("video_index:"+video_index);
+                                // console.log((player))
+                                
+                                const player_ref = video_refs.current[video_index];
+                                const player = player_ref.current;
+                                player.seekTo(time,'seconds');
+                                // player.playing = true;
+                              }}>
+                                <button>Go to timestamp {time} - similarity:{scene.sim_score}</button>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      )
-                    })
-                    
-                  }
-                </div>
+                          )
+                        })
+                        
+                      }
+                    </div>
 
-              </div>
-            )
-          })
-        }
-      </div>
+                  </div>
+                )
+              })
+            }
+          </div>
+        )
+      }
     </div>
   );
 }

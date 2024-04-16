@@ -10,6 +10,8 @@ from core import RetrievalPipeline
 # Settings related to Cross-Origin resource sharing
 from fastapi.middleware.cors import CORSMiddleware
 
+# for sanitizing get query
+import html
 
 app = FastAPI()
 
@@ -34,11 +36,6 @@ print(dir_path)
 rp = RetrievalPipeline()
 
 CONTENT_CHUNK_SIZE=100*1024
-
-@app.get("/hello")
-async def hello():
-    return {"message": "Hello world"}
-
 @app.get("/stream/{name}")
 async def stream(name:str,range: Optional[str] = Header(None)):
     def get_file(name:str):
@@ -76,6 +73,7 @@ async def stream(name:str,range: Optional[str] = Header(None)):
 
 @app.get("/moments")
 async def retreive_moments(query: str, k=5):
+    query = html.escape(query)
     retrieval_result = rp.retrieve_moments(query, k)
     
     results = []
@@ -96,6 +94,7 @@ async def retreive_moments(query: str, k=5):
 
 @app.get("/moments/{video_name}")
 async def retreive_moments_with_name(video_name: str, query: str, k=5):
+    query = html.escape(query)
     ## TODO: add video validate logic
     retrieval_result = rp.retrieve_moments(query, k, video_name)
     
