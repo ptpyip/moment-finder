@@ -18,6 +18,7 @@ from sentence_transformers.util import cos_sim
 
 from core import UploadPipeline, RetrievalPipeline
 from core.module.vectorizer import CLIPVectorizer
+from core.vec_db import SupabaseDB
 from core.utils import video_processing
 from tool.utils import load_jsonl, write_jsonl
 
@@ -34,15 +35,13 @@ class TVRFriendsDataset():
         self.moment_names = os.listdir(self.frames_dir)
         self.moment_names.sort(key=lambda name: int(name.split('_')[-1])) 
                
+        self.db = SupabaseDB()
         self.frame_vectorizer = CLIPVectorizer(clip_name)
         self.moment_vectorizer = SentenceTransformer("multi-qa-MiniLM-L6-cos-v1")
 
         # self.moment_names = 
         
     def upload(self, moment_table, frame_table):
-        up = UploadPipeline(moment_table, frame_table)
-
-        uploaded_video = len(self.data_df)
         for i, moment_name in enumerate(self.moment_names):
             moment_dir = os.join(self.frames_dir, moment_name)
             
@@ -65,10 +64,10 @@ class TVRFriendsDataset():
             frame_vectors = self.vectorize_frames(frames) 
             
             ### insert moment
-            res = self.db.insert(self.moment_table, {
+            res = self.db.insert(moment_table, {
                 "name": moment_name,       # output_dir/$VIDEO_NAME-Scene-$SCENE_NUMBER.mp4 -> $VIDEO_NAME-Scene-$SCENE_NUMBER
                 "timestamp": [prev_timestamp, length],
-                "vector": moment_vector.tolist()       # type: ignore
+                "vector": moment_vector.tolist(),       # type: ignore
                 "subtitles": subs.text 
             })
             prev_timestamp = length
@@ -77,13 +76,13 @@ class TVRFriendsDataset():
             for j, vector in enumerate(frame_vectors):
                 frame = video_processing.encode_img_to_base64(frames[j]).decode("utf-8")
                     
-                res = self.db.insert(self.frame_table, {
+                res = self.db.insert(frame_table, {
                     "moment_id": moment_id,
                     "frame_base64": frame,           # need to turn byte to str, as JSON only accept str
                     "vector": vector.tolist(),                              # jsn only support list
                 })
                 
-        return uploaded_video
+        return 
     
     def retrieve(self, skip_not_exisit=True, vid_is_given=False, verbose=False):
         rp = RetrievalPipeline()
