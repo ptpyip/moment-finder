@@ -61,7 +61,7 @@ class TVRFriendsDataset():
             length = j//3
              
             moment_vector = self.vectorize_subtitles(subs.text)
-            frame_vectors = self.vectorize_frames(frames) 
+            frame_vectors = self.frame_vectorizer.vectorize_frames(frames) 
             
             ### insert moment
             res = self.db.insert(moment_table, {
