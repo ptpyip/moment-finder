@@ -43,9 +43,9 @@ class TVRFriendsDataset():
         
     def upload(self, moment_table, frame_table):
         for i, moment_name in enumerate(self.moment_names):
-            moment_dir = os.join(self.frames_dir, moment_name)
+            moment_dir = os.path.join(self.frames_dir, moment_name)
             
-            subtitle_path = os.join(self.subtitles_dir, f"{moment_name}.srt") 
+            subtitle_path = os.path.join(self.subtitles_dir, f"{moment_name}.srt") 
             assert os.path.exists(subtitle_path)
             subs = pysrt.open(subtitle_path)
             
@@ -56,7 +56,7 @@ class TVRFriendsDataset():
                     # skip as 3fps frames
                     continue
                 
-                frame_path = os.join(moment_dir, f"{frame}.jpg")
+                frame_path = os.path.join(moment_dir, f"{frame}.jpg")
                 frames.append(Image.open(frame_path))
             length = j//3
              
