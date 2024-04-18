@@ -23,9 +23,7 @@ from tool.utils import load_jsonl, write_jsonl
 
 class TVRFriendsDataset():
     def __init__(self, data_dir,
-        clip_name="ViT-B/16",
-        clip4clip_name="meanP-ViT-B/16",
-        clip4clip_path="/csproject/dan3/downloads/ckpts/meanP-ViT-B-16.bin.3",
+            clip_name="ViT-B/16",
         ) -> None:
         """each clip is a moment"""
         # data = load_jsonl(file_path)
@@ -138,6 +136,10 @@ class TVRFriendsDataset():
             convert_to_tensor=True
         )
         
-        
-                
+if __name__ == "__main__":
+    friends = TVRFriendsDataset("/csproject/dan3/data/tvqa/friends_s01e05")   
+    friends.upload(
+        moment_table="tvr_friends_moments_0416",
+        frame_table="tvr_friends_frames_0416"
+    )
         
