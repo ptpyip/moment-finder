@@ -56,7 +56,7 @@ class TVRFriendsDataset():
                     # skip as 3fps frames
                     continue
                 
-                frame_path = os.path.join(moment_dir, f"{frame}.jpg")
+                frame_path = os.path.join(moment_dir, frame)
                 frames.append(Image.open(frame_path))
             length = j//3
              
