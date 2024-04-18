@@ -135,23 +135,44 @@ if __name__ == "__main__":
             frame_table=args.frame_table,
             use_moment_vector=args.use_moment_vector
         )
-        print(f"Uploaded {num_uploaded_video} videos to {args.moment_table} and {args.frame_table}")        
-         
-    else:
+        print(f"Uploaded {num_uploaded_video} videos to {args.moment_table} and {args.frame_table}")
+                
+    elif args.use_moment_vector:
+        print(f"Retrieving moments from {args.moment_table}.")
+        
         gt, pred = dataset.retrieveV2(
-            moment_table=args.moment_table   
+            moment_table=args.moment_table, verbose=True 
         )
-        results = eval_submission(pred, gt) 
         
         if args.output == "":
-            args.output = f"{args.moment_table}_metrics"
-        with open(f"./{args.output}.json", "w") as f:
+            args.output = f"{args.moment_table}"
+        write_jsonl(pred, ".", f"{args.output}_preds.jsonl")  
+        
+        results = eval_submission(pred, gt) 
+        with open(f"./{args.output}_metrics.json", "w") as f:
             f.write(json.dumps(results, indent=4))
+
+    else:
+        # clip only
+        print(f"Retrieving moments from qvhiglight_clip_moment_0209.")
+        
+        gt, pred = dataset.retrieve(
+            vid_is_given=True, verbose=True 
+        )
+        
+        if args.output == "":
+            args.output = "qvhiglight_clip_moment_0209" 
+        write_jsonl(pred, ".", f"{args.output}_preds.jsonl")  
+        
+        results = eval_submission(pred, gt) 
+        with open(f"./{args.output}_metrics.json", "w") as f:
+            f.write(json.dumps(results, indent=4))
+        
         
         
     # # test_retrieval("Police in riot gear are marching down the street.")
         # retrieve_video_using_dataset_prompt(f"{args.source_dir}/highlight_val_release.jsonl", use_moment_vector=args.use_moment_vector)
         
-        print("success")
+    print("success")
     
     
