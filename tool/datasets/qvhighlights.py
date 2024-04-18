@@ -3,7 +3,7 @@ This file contains code for upload and retrieve moments for a given dataset
 It generates the result file for eval code to use.
 This code is yet to be pollished.
 """
-import json
+import tqdm
 import pandas as pd
 
 from io import BytesIO
@@ -36,29 +36,37 @@ class QVHighlightsDataset():
         return num_uploaded_video
 
     def retrieveV2(self, moment_table, k=5, verbose=False, skip_not_found=True):
-        rp = RetrievalPipeline()
+        rp = RetrievalPipeline(use_moment_vector=True)
         
         gt = []
         pred = []
-        for data in self.data_df: 
-            vid = data.get("vid") 
+        for i, data in tqdm.tqdm(self.data_df.iterrows()): 
+            vid = data.get("vid")
             retrieval_result = rp.retrieve_moments_v2(moment_table, data.get("query"), vid, k) 
-            
-            if len(retrieval_result) != 0 :
-                pred_relevant_windows = []
-                for moment_id, video_name, timestamp, cos_dist in retrieval_result:
-                    pred_vid = rp.get_video_id(video_name)
-                    
-                    if pred_vid == vid:
-                        pred_relevant_windows.append(
-                            [*timestamp, 1 - cos_dist]
-                        )
-                if verbose:                
-                    print(f"query: {data.get('qid')} has {len(pred_relevant_windows)} result")
-            else:
-                if skip_not_found: 
-                    continue
-                pred_relevant_windows = [0, 0]   
+            if len(retrieval_result) == 0 and skip_not_found:
+                # skip video does not exist.
+                continue 
+            # if len(retrieval_result) != 0 :
+            pred_relevant_windows = []
+            for moment_id, video_name, timestamp, cos_dist in retrieval_result:
+                # print(vid, moment_id, video_name)
+                pred_vid = rp.get_video_id(video_name)
+                # print(pred_vid, )
+                if pred_vid == vid:
+                    pred_relevant_windows.append(
+                        [*timestamp, 1 - cos_dist]
+                    )
+            if verbose:             
+                # print(f"vid: {data.get('vid')} has {len(pred_relevant_windows)} result")
+                # break
+                pass
+            # else:
+            #     if skip_not_found: 
+            #         print(f"vid: {data.get('vid')} has 0 result")
+            #         continue
+                
+                # print(f"storing vid: {data.get('vid')}") 
+                # pred_relevant_windows = [[0, 0, 0]]  
 
             gt.append(data)
             pred.append({

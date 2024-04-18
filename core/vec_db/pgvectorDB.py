@@ -23,20 +23,38 @@ class PgvectorDB:
         self.Session = sessionmaker(self.engine)
         
         assert self.test_connection_success()
+        
+    def excute(self, sql):
+        with self.Session() as session:
+            return session.execute(text(sql)).fetchall()
     
 
     def fetch_moments_by_vector_v2(self, moment_table_name: str, input_vector, video_name=None, k=5):
         ## validate table_name
+        number_of_nearest_neibour = 25      # query_tuning pararmeter
+        # print(f"WHERE name LIKE '{video_name}%'")
+        where_clause = f"WHERE name LIKE '{video_name}%'" if video_name is not None else ''
         
         with self.Session() as session:
             return session.execute(text(f"""
-                SET LOCAL hnsw.ef_search = 100;
+                SET LOCAL hnsw.ef_search = {number_of_nearest_neibour};      
                 SELECT id, name, timestamp,
                     vector <=> '{input_vector.squeeze().tolist()}' AS distance         
                 FROM {moment_table_name}
-                {f'WHERE name LIKE {video_name}' if video_name is not None else ''}
+                {where_clause}
                 ORDER BY distance limit {k}
             """)).fetchall()
+        """
+            3 BUGs in 2 line of code.
+            SET LOCAL hnsw.ef_search = 100;     # 4. 100 is too large
+            SELECT id, name, timestamp,
+                vector <=> '{input_vector.squeeze().tolist()}' AS distance         
+            FROM {moment_table_name}
+            {f'WHERE name LIKE {video_name}' if video_name is not None else ''}
+            # 1. mising single quote (') warapping video_name
+            # 2. missing %
+            ORDER BY distance limit {k}
+        """
 
         
     # def set_VMR_table(self, moment_table_name, )

@@ -9,7 +9,7 @@ class RetrievalPipeline:
         # moment_table, frame_table,
         clip_name="ViT-B/32",
         clip4clip_name="meanP-ViT-B/16",
-        clip4clip_path="/csproject/dan3/downloads/ckpts/meanP-ViT-B-16.bin.3",
+        clip4clip_path="/data/downloads/ckpts/meanP-ViT-B-16.bin.3",
         serverl_url="localhost", use_moment_vector = False 
     ) -> None:
         self.use_moment_vector = use_moment_vector
@@ -17,10 +17,10 @@ class RetrievalPipeline:
         self.vec_db = PgvectorDB(serverl_url)
         self.txt2frame_vectorizer = CLIPVectorizer(clip_name)
 
-        # self.txt2moment_vectorier = CLIP4ClipVectorizerV2() if use_moment_vector else None
-        self.txt2moment_vectorier = CLIP4ClipVectorizer(
-           clip4clip_name, clip4clip_path
-        ) if use_moment_vector else None
+        self.txt2moment_vectorier = CLIP4ClipVectorizerV2() if use_moment_vector else None
+        # self.txt2moment_vectorier = CLIP4ClipVectorizer(
+        #    clip4clip_path, clip4clip_name
+        # ) if use_moment_vector else None
                  # [(id, dist)]
 
     def retrieve_moments(self, prompt: str, k=5, video_name=None) -> dict:
