@@ -83,7 +83,7 @@ const API = {
             const name = "Video "+(i+1);
             const url = video_location +result.vid+".mp4";
             const scenes = [
-              {timestamp:parseInt(result.timestamp),
+              {timestamp:[parseInt(result.timestamp[0]),parseInt(result.timestamp[1])],
                 sim_score:result.sim_score,
               // thumbnail:base64_data
               }
@@ -96,7 +96,7 @@ const API = {
             else {
               // when the same video also has targeted scenes
               exist.scenes.push(
-                {timestamp:parseInt(result.timestamp),
+                {timestamp:[parseInt(result.timestamp[0]),parseInt(result.timestamp[1])],
                   sim_score:result.sim_score
                 }
               )

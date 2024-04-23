@@ -85,7 +85,8 @@ export default function BotMessage({ fetchMessage: fetchResult, query }) {
                     <div className="horizontal-scroll-container container">
                       {
                         video.scenes.map((scene,scene_index) => {
-                          let time = scene.timestamp
+                          let time = scene.timestamp[0]
+                          let time2 = scene.timestamp[1]
                           return (
                             <div className="scene-container container">
                               <div className="scene-description-container container" onClick={()=> {
@@ -102,7 +103,7 @@ export default function BotMessage({ fetchMessage: fetchResult, query }) {
                                 player.seekTo(time,'seconds');
                                 // player.playing = true;
                               }}>
-                                <button>Go to timestamp {time} - similarity:{scene.sim_score}</button>
+                                <button>Go to timestamp {time}:{time2} - similarity:{scene.sim_score}</button>
                               </div>
                             </div>
                           )
