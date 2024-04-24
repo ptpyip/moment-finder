@@ -97,3 +97,8 @@ def gradio_app():
         change_video_button3.click(lambda: change_moment(2, youtube_video_id), outputs=[out, change_video_button1, change_video_button2, change_video_button3])
 
     return app
+
+
+if __name__ == "__main__":
+    app = gradio_app()
+    app.launch(server_name="0.0.0.0", server_port=8089, share=True)
