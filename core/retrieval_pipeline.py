@@ -39,7 +39,21 @@ class RetrievalPipeline:
                 input_vector=query_vec,
                 video_name=video_name
             )       # 
-            
+
+
+        return moments
+    
+    def retrieve_moments_by_video_id(self, video_id: str, prompt: str, k=5) -> dict:
+        query_vec = self.vectorizer.vectorize_txt(prompt)
+
+        # retrieve k moments
+        moments = self.db.fetch_moments_by_vector_with_video_id(
+            video_id=video_id,
+            vector_table_name="qvhiglight_clip_moment_vector_0209",
+            moment_table_name="qvhiglight_clip_moment_0209",
+            input_vector=query_vec,
+            k=k
+        )      
         
         return moments
     
@@ -60,3 +74,7 @@ class RetrievalPipeline:
         
         return moments 
         
+
+    def retrieve_base64_by_ids(self, ids: List[int]):
+        return self.supabase_db.fetch_base64_by_ids("qvhiglight_clip_moment_vector_0209", ids)
+     
