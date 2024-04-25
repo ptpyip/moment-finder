@@ -12,11 +12,12 @@ class RawVideoExtractorCV2():
     """
     Convert video data (.mp4) into tensors
     """
-    def __init__(self, size=224, framerate=1, centercrop=False):
+    def __init__(self, size=224, framerate=1, centercrop=False, max_num_frames=None):
         self.centercrop = centercrop
         self.size = size
         self.framerate = framerate                              # if frame_rate == video fps => encode all frame.
         self.transform = self._transform(self.size)
+        self.max_num_frames = max_num_frames
         
     def video2tensor(self, video_path, start_time=None, end_time=None, sample_fps=0, return_frames=False):
         frames = self.get_frames(video_path, start_time, end_time, sample_fps)

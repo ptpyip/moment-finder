@@ -36,24 +36,52 @@ class ShotDetectSegmenter(BaseVideoSegmenter):
         assert video_splitter.is_ffmpeg_available()
         
         self.content_threshold = content_threshold
-        self.output_file_template = f'{output_dir}/$VIDEO_NAME-Scene-$SCENE_NUMBER.mp4'    
+        
+        # self.output_file_template = f'{output_dir}/$VIDEO_NAME-Scene-$SCENE_NUMBER.mp4'  
+        # for some reason there is a bug which template become folder name, like output_dir/$VIDEO_NAME-Scene-$SCENE_NUMBER.mp4/file.mp4 
+        self.output_dir = output_dir
+        self.output_file_template = output_dir      
+          
+        ### create detector for each split.
+        self.use_adaptive = use_adaptive
+        self.Detector = lambda : AdaptiveDetector(
+            adaptive_threshold, min_content_val=self.content_threshold
+        ) if self.use_adaptive else ContentDetector(self.content_threshold)
+
         # self.detector = AdaptiveDetector(adaptive_threshold, min_content_val=content_threshold) if use_adaptive else ContentDetector(content_threshold)
-           
         # self.detector = ContentDetector(content_threshold)
         
-    def split(self, input_video_path, show_progress=True) -> List[Tuple[float, float]]:
+    def split(self, input_video_path, show_progress=True) -> List[Tuple[str, float, float]]:
         # output_dir = remove_suffix(output_dir,'/')
-        # if not os.path.exists(output_dir):
-        #     os.mkdir(output_dir)
-        scene_list = scenedetect.detect(input_video_path, ContentDetector(self.content_threshold), show_progress=True)
-        print(scene_list)
+        if not os.path.exists(self.output_dir):
+            os.mkdir(self.output_dir)
+        
+        detector = self.Detector()      # create detector for each split.
+        scene_list = scenedetect.detect(input_video_path, detector, show_progress=True)
+        # print(scene_list)
         try:
-            
             split_video_ffmpeg(input_video_path, scene_list, self.output_file_template, show_progress=show_progress)
         except AssertionError as err:
             print(err)
             return []
-        return self.parse_scene_list(scene_list)
+           
+        splited_video_paths = [
+            path for path in os.listdir(self.output_dir) if path.endswith(".mp4")
+        ] 
+        # if len(splited_video_paths) != len(scene_list):
+        #     splited_video_paths = [path for path in splited_video_paths if path.endswith(".mp4")] 
+        
+        video_splits = []
+        assert len(splited_video_paths) == len(scene_list)
+        for video_path, scene in zip(splited_video_paths, scene_list):
+            ''' video_path is sorted by $SCENE_NUMBER '''
+            
+            video_path = os.path.join(self.output_dir, video_path)
+            start, end = scene[0].get_seconds(), scene[1].get_seconds()
+            
+            video_splits.append((video_path, start, end))
+        
+        return video_splits
     
     def parse_scene_list(self, scene_list) -> List[Tuple[float, float]]:
         return [(scene[0].get_seconds(), scene[1].get_seconds()) for scene in scene_list]

@@ -1,7 +1,8 @@
 # Moment Finder
 
 > Retrieve moments from videos using natural language query
->
+
+
 
 ## Requirments
 ```bash
@@ -9,6 +10,11 @@ conda env create -n <name> -f environment.yml
 conda activate <name>
 pip install -r ./requirements.txt
 pip install git+https://github.com/openai/CLIP.git
+```
+
+## Start API
+```bash
+python -m app.api
 ```
 
 ## Acknowledgment 
