@@ -12,6 +12,10 @@ pip install -r ./requirements.txt
 pip install git+https://github.com/openai/CLIP.git
 ```
 
+## Demo
+![CleanShot 2024-04-30 at 11 30 08](https://github.com/ptpyip/moment-finder/assets/18398848/e0ebd4ec-6e92-445e-80f8-24003a51b93f)
+
+
 ## Start API
 ```bash
 python -m app.api
