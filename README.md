@@ -1,4 +1,4 @@
-# Moment Finder
+# Moment Finder: Efficient Video Search using Vector DB and Vision-Language Models (CLIP)
 
 > Retrieve moments from videos using natural language query
 
